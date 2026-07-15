@@ -38,39 +38,54 @@ import retrofit2.http.Query
  * exactly what the Vue frontend does too.
  */
 interface TimeTrackerApi {
-
     // Tags
     @GET("apps/timetracker/ajax/tags")
     suspend fun getTags(): TagsResponse
 
     @POST("apps/timetracker/ajax/add-tag/{name}")
-    suspend fun addTag(@Path("name") name: String): Response<JsonObject>
+    suspend fun addTag(
+        @Path("name") name: String,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/edit-tag/{id}")
-    suspend fun editTag(@Path("id") id: Int, @Body body: EditNameRequest): Response<JsonObject>
+    suspend fun editTag(
+        @Path("id") id: Int,
+        @Body body: EditNameRequest,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/delete-tag/{id}")
-    suspend fun deleteTag(@Path("id") id: Int): Response<JsonObject>
+    suspend fun deleteTag(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
 
     // Clients
     @GET("apps/timetracker/ajax/clients")
     suspend fun getClients(): ClientsResponse
 
     @POST("apps/timetracker/ajax/add-client/{name}")
-    suspend fun addClient(@Path("name") name: String): Response<JsonObject>
+    suspend fun addClient(
+        @Path("name") name: String,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/edit-client/{id}")
-    suspend fun editClient(@Path("id") id: Int, @Body body: EditNameRequest): Response<JsonObject>
+    suspend fun editClient(
+        @Path("id") id: Int,
+        @Body body: EditNameRequest,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/delete-client/{id}")
-    suspend fun deleteClient(@Path("id") id: Int): Response<JsonObject>
+    suspend fun deleteClient(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
 
     // Projects
     @GET("apps/timetracker/ajax/projects")
     suspend fun getProjects(): ProjectsResponse
 
     @GET("apps/timetracker/ajax/projects-table")
-    suspend fun getProjectsTable(@Query("archived") archived: Int): ProjectsTableResponse
+    suspend fun getProjectsTable(
+        @Query("archived") archived: Int,
+    ): ProjectsTableResponse
 
     @POST("apps/timetracker/ajax/add-project/{name}")
     suspend fun addProject(
@@ -85,7 +100,9 @@ interface TimeTrackerApi {
     ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/delete-project-with-data/{id}")
-    suspend fun deleteProjectWithData(@Path("id") id: Int): Response<JsonObject>
+    suspend fun deleteProjectWithData(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
 
     // Timer
     @GET("apps/timetracker/ajax/work-intervals")
@@ -104,7 +121,9 @@ interface TimeTrackerApi {
 
     /** [name] must already be percent-encoded twice — see ApiNameEncoding.kt. */
     @POST("apps/timetracker/ajax/stop-timer/{name}")
-    suspend fun stopTimer(@Path("name", encoded = true) name: String): Response<JsonObject>
+    suspend fun stopTimer(
+        @Path("name", encoded = true) name: String,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/update-work-interval/{id}")
     suspend fun updateWorkIntervalNameDetails(
@@ -138,8 +157,13 @@ interface TimeTrackerApi {
     ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/delete-work-interval/{id}")
-    suspend fun deleteWorkInterval(@Path("id") id: Int): Response<JsonObject>
+    suspend fun deleteWorkInterval(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
 
     @POST("apps/timetracker/ajax/add-cost/{id}")
-    suspend fun addCost(@Path("id") id: Int, @Body body: AddCostRequest): Response<JsonObject>
+    suspend fun addCost(
+        @Path("id") id: Int,
+        @Body body: AddCostRequest,
+    ): Response<JsonObject>
 }

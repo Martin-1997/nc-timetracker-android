@@ -1,6 +1,5 @@
 package org.mtier.timetracker.ui.common
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,9 +78,10 @@ fun <T> NamedEntityCrudScreen(
             LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
                 items(items, key = { getId(it) }) { item ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(text = getName(item), modifier = Modifier.weight(1f))

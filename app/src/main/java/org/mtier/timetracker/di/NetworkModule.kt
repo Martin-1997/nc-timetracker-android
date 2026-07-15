@@ -25,20 +25,22 @@ private const val PLACEHOLDER_BASE_URL = "https://dynamic.invalid/"
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
     @Provides
     @Singleton
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        explicitNulls = false
-    }
+    fun provideJson(): Json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            explicitNulls = false
+        }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-            .addInterceptor(authInterceptor)
+        val builder =
+            OkHttpClient
+                .Builder()
+                .addInterceptor(authInterceptor)
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(
                 HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY },
@@ -49,8 +51,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit =
-        Retrofit.Builder()
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        json: Json,
+    ): Retrofit =
+        Retrofit
+            .Builder()
             .baseUrl(PLACEHOLDER_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
@@ -58,6 +64,5 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideTimeTrackerApi(retrofit: Retrofit): TimeTrackerApi =
-        retrofit.create(TimeTrackerApi::class.java)
+    fun provideTimeTrackerApi(retrofit: Retrofit): TimeTrackerApi = retrofit.create(TimeTrackerApi::class.java)
 }

@@ -32,21 +32,23 @@ import org.mtier.timetracker.R
 import org.mtier.timetracker.ui.navigation.Destination
 import org.mtier.timetracker.ui.navigation.drawerDestinations
 
-private fun iconFor(destination: Destination): ImageVector = when (destination) {
-    Destination.Timer -> Icons.Filled.Timer
-    Destination.Projects -> Icons.Filled.Work
-    Destination.Clients -> Icons.Filled.Group
-    Destination.Tags -> Icons.Filled.Label
-    else -> Icons.Filled.AttachMoney
-}
+private fun iconFor(destination: Destination): ImageVector =
+    when (destination) {
+        Destination.Timer -> Icons.Filled.Timer
+        Destination.Projects -> Icons.Filled.Work
+        Destination.Clients -> Icons.Filled.Group
+        Destination.Tags -> Icons.Filled.Label
+        else -> Icons.Filled.AttachMoney
+    }
 
-private fun labelFor(destination: Destination): Int = when (destination) {
-    Destination.Timer -> R.string.nav_timer
-    Destination.Projects -> R.string.nav_projects
-    Destination.Clients -> R.string.nav_clients
-    Destination.Tags -> R.string.nav_tags
-    else -> R.string.nav_timer
-}
+private fun labelFor(destination: Destination): Int =
+    when (destination) {
+        Destination.Timer -> R.string.nav_timer
+        Destination.Projects -> R.string.nav_projects
+        Destination.Clients -> R.string.nav_clients
+        Destination.Tags -> R.string.nav_tags
+        else -> R.string.nav_timer
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,11 +100,12 @@ fun MainScaffold(
                             Icon(Icons.Filled.Menu, contentDescription = null)
                         }
                     },
-                    colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
+                    colors =
+                        androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                 )
             },
         ) { innerPadding ->

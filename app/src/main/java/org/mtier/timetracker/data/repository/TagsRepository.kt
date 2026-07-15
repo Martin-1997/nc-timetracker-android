@@ -8,20 +8,25 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TagsRepository @Inject constructor(
-    private val api: TimeTrackerApi,
-) {
-    suspend fun getTags(): List<TagDto> = api.getTags().tags
+class TagsRepository
+    @Inject
+    constructor(
+        private val api: TimeTrackerApi,
+    ) {
+        suspend fun getTags(): List<TagDto> = api.getTags().tags
 
-    suspend fun addTag(name: String) {
-        api.addTag(name).throwOnError()
-    }
+        suspend fun addTag(name: String) {
+            api.addTag(name).throwOnError()
+        }
 
-    suspend fun editTag(id: Int, name: String) {
-        api.editTag(id, EditNameRequest(name)).throwOnError()
-    }
+        suspend fun editTag(
+            id: Int,
+            name: String,
+        ) {
+            api.editTag(id, EditNameRequest(name)).throwOnError()
+        }
 
-    suspend fun deleteTag(id: Int) {
-        api.deleteTag(id).throwOnError()
+        suspend fun deleteTag(id: Int) {
+            api.deleteTag(id).throwOnError()
+        }
     }
-}

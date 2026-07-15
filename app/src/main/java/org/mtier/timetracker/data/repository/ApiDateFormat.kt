@@ -12,10 +12,8 @@ import java.util.TimeZone
  */
 private val API_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yy HH:mm")
 
-fun Instant.toApiDateString(): String =
-    API_DATE_FORMATTER.withZone(ZoneId.systemDefault()).format(this)
+fun Instant.toApiDateString(): String = API_DATE_FORMATTER.withZone(ZoneId.systemDefault()).format(this)
 
 /** Java's getRawOffset is milliseconds east of UTC; the PHP side expects
  *  JS's getTimezoneOffset() convention (minutes *west* of UTC), so negate. */
-fun currentTzOffsetMinutes(): Int =
-    -(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60_000)
+fun currentTzOffsetMinutes(): Int = -(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60_000)

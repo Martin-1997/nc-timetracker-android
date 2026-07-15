@@ -1,10 +1,16 @@
 package org.mtier.timetracker.ui.navigation
 
-sealed class Destination(val route: String) {
+sealed class Destination(
+    val route: String,
+) {
     data object Login : Destination("login")
+
     data object Timer : Destination("timer")
+
     data object Projects : Destination("projects")
+
     data object Clients : Destination("clients")
+
     data object Tags : Destination("tags")
 }
 

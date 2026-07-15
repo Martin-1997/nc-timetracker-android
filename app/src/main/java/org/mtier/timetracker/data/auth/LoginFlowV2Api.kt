@@ -13,7 +13,6 @@ import retrofit2.http.Url
  * PLAN.md §3). Protocol: https://docs.nextcloud.com/server/latest/developer_manual/client_apis/LoginFlow/index.html
  */
 interface LoginFlowV2Api {
-
     @POST("index.php/login/v2")
     suspend fun initiate(): LoginFlowInitResponse
 

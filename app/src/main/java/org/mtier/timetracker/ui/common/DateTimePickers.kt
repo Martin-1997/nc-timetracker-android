@@ -25,7 +25,11 @@ private val DATE_LABEL_FORMATTER =
 private val DATE_TIME_LABEL_FORMATTER =
     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(ZoneId.systemDefault())
 
-private fun combineDateAndTime(dateUtcMillis: Long, hour: Int, minute: Int): Instant {
+private fun combineDateAndTime(
+    dateUtcMillis: Long,
+    hour: Int,
+    minute: Int,
+): Instant {
     val date = Instant.ofEpochMilli(dateUtcMillis).atZone(ZoneOffset.UTC).toLocalDate()
     return date.atTime(hour, minute).atZone(ZoneId.systemDefault()).toInstant()
 }
@@ -33,7 +37,10 @@ private fun combineDateAndTime(dateUtcMillis: Long, hour: Int, minute: Int): Ins
 /** Date-only picker button, used for the Timer/Dashboard/Reports date range. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
+fun DatePickerButton(
+    value: Instant,
+    onValueChanged: (Instant) -> Unit,
+) {
     var showDialog by remember { mutableStateOf(false) }
 
     OutlinedButton(onClick = { showDialog = true }) {
@@ -41,10 +48,16 @@ fun DatePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
     }
 
     if (showDialog) {
-        val state = rememberDatePickerState(
-            initialSelectedDateMillis = value.atZone(ZoneOffset.UTC).toLocalDate()
-                .atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-        )
+        val state =
+            rememberDatePickerState(
+                initialSelectedDateMillis =
+                    value
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate()
+                        .atStartOfDay(ZoneOffset.UTC)
+                        .toInstant()
+                        .toEpochMilli(),
+            )
         DatePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
@@ -64,7 +77,10 @@ fun DatePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
 /** Date+time picker button, used for manual entry / edit-time forms. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
+fun DateTimePickerButton(
+    value: Instant,
+    onValueChanged: (Instant) -> Unit,
+) {
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var pickedDateMillis by remember { mutableStateOf<Long?>(null) }
@@ -74,10 +90,16 @@ fun DateTimePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
     }
 
     if (showDatePicker) {
-        val dateState = rememberDatePickerState(
-            initialSelectedDateMillis = value.atZone(ZoneOffset.UTC).toLocalDate()
-                .atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
-        )
+        val dateState =
+            rememberDatePickerState(
+                initialSelectedDateMillis =
+                    value
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate()
+                        .atStartOfDay(ZoneOffset.UTC)
+                        .toInstant()
+                        .toEpochMilli(),
+            )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
@@ -94,11 +116,12 @@ fun DateTimePickerButton(value: Instant, onValueChanged: (Instant) -> Unit) {
 
     if (showTimePicker) {
         val localValue = value.atZone(ZoneId.systemDefault())
-        val timeState = rememberTimePickerState(
-            initialHour = localValue.hour,
-            initialMinute = localValue.minute,
-            is24Hour = true,
-        )
+        val timeState =
+            rememberTimePickerState(
+                initialHour = localValue.hour,
+                initialMinute = localValue.minute,
+                is24Hour = true,
+            )
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showTimePicker = false },
             text = { TimePicker(state = timeState) },

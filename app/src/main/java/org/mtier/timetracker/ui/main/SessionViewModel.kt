@@ -6,8 +6,10 @@ import org.mtier.timetracker.data.auth.AuthRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SessionViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-) : ViewModel() {
-    fun signOut() = authRepository.signOut()
-}
+class SessionViewModel
+    @Inject
+    constructor(
+        private val authRepository: AuthRepository,
+    ) : ViewModel() {
+        fun signOut() = authRepository.signOut()
+    }

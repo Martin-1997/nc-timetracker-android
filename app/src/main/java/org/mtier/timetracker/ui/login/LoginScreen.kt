@@ -41,9 +41,10 @@ fun LoginScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -79,9 +80,10 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
         )
         Button(
             onClick = viewModel::startLogin,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
         ) {
             Text(stringResource(R.string.login_continue))
         }
@@ -97,7 +99,10 @@ private fun LoadingIndicator(label: String) {
 }
 
 @Composable
-private fun ErrorState(message: String, onRetry: () -> Unit) {
+private fun ErrorState(
+    message: String,
+    onRetry: () -> Unit,
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = message, textAlign = TextAlign.Center)
         Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) {

@@ -137,13 +137,18 @@ fun ProjectsScreen(
 private enum class ColorPickerTarget { NewProject, EditProject }
 
 @Composable
-private fun ColorSwatch(color: Color, onClick: () -> Unit, size: androidx.compose.ui.unit.Dp = 32.dp) {
+private fun ColorSwatch(
+    color: Color,
+    onClick: () -> Unit,
+    size: androidx.compose.ui.unit.Dp = 32.dp,
+) {
     androidx.compose.foundation.layout.Box(
-        modifier = Modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(color)
-            .clickable(onClick = onClick),
+        modifier =
+            Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(color)
+                .clickable(onClick = onClick),
     )
 }
 
@@ -203,19 +208,26 @@ private fun ClientDropdown(
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.projects_client)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = true },
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 text = { Text("—") },
-                onClick = { onClientChanged(null); expanded = false },
+                onClick = {
+                    onClientChanged(null)
+                    expanded = false
+                },
             )
             clients.forEach { client ->
                 DropdownMenuItem(
                     text = { Text(client.name) },
-                    onClick = { onClientChanged(client.id); expanded = false },
+                    onClick = {
+                        onClientChanged(client.id)
+                        expanded = false
+                    },
                 )
             }
         }
@@ -223,12 +235,16 @@ private fun ClientDropdown(
 }
 
 @Composable
-private fun ProjectRow(project: ProjectTableRowDto, onClick: () -> Unit) {
+private fun ProjectRow(
+    project: ProjectTableRowDto,
+    onClick: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ColorSwatch(parseColor(project.color), onClick = onClick)
@@ -298,7 +314,10 @@ private fun EditProjectDialog(
 }
 
 @Composable
-private fun ColorPickerDialog(onColorSelected: (String) -> Unit, onDismiss: () -> Unit) {
+private fun ColorPickerDialog(
+    onColorSelected: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.projects_color)) },

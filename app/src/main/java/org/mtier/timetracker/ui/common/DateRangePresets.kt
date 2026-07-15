@@ -7,27 +7,37 @@ import java.time.ZoneId
 
 /** Mirrors the web app's dateRangePresets.js so both clients offer the same
  *  quick-range shortcuts. */
-data class DateRangePreset(val key: String, val label: String)
-
-val DATE_RANGE_PRESETS = listOf(
-    DateRangePreset("today", "Today"),
-    DateRangePreset("yesterday", "Yesterday"),
-    DateRangePreset("last7", "Last 7 days"),
-    DateRangePreset("last30", "Last 30 days"),
-    DateRangePreset("last90", "Last 90 days"),
-    DateRangePreset("last365", "Last 365 days"),
-    DateRangePreset("thisMonth", "This month"),
-    DateRangePreset("lastMonth", "Last month"),
-    DateRangePreset("thisYear", "This year"),
-    DateRangePreset("lastYear", "Last year"),
+data class DateRangePreset(
+    val key: String,
+    val label: String,
 )
+
+val DATE_RANGE_PRESETS =
+    listOf(
+        DateRangePreset("today", "Today"),
+        DateRangePreset("yesterday", "Yesterday"),
+        DateRangePreset("last7", "Last 7 days"),
+        DateRangePreset("last30", "Last 30 days"),
+        DateRangePreset("last90", "Last 90 days"),
+        DateRangePreset("last365", "Last 365 days"),
+        DateRangePreset("thisMonth", "This month"),
+        DateRangePreset("lastMonth", "Last month"),
+        DateRangePreset("thisYear", "This year"),
+        DateRangePreset("lastYear", "Last year"),
+    )
 
 fun resolvePresetRange(key: String): Pair<Instant, Instant>? {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now(zone)
 
     fun startOfDay(date: LocalDate): Instant = date.atStartOfDay(zone).toInstant()
-    fun endOfDay(date: LocalDate): Instant = date.plusDays(1).atStartOfDay(zone).toInstant().minusSeconds(1)
+
+    fun endOfDay(date: LocalDate): Instant =
+        date
+            .plusDays(1)
+            .atStartOfDay(zone)
+            .toInstant()
+            .minusSeconds(1)
 
     return when (key) {
         "today" -> startOfDay(today) to endOfDay(today)

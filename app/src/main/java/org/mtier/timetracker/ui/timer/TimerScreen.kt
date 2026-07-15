@@ -246,7 +246,10 @@ private fun DateRangeRow(
 }
 
 @Composable
-private fun WorkIntervalRow(item: WorkIntervalItemDto, viewModel: TimerViewModel) {
+private fun WorkIntervalRow(
+    item: WorkIntervalItemDto,
+    viewModel: TimerViewModel,
+) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.material3.IconButton(onClick = { viewModel.resume(item) }) {
@@ -256,9 +259,10 @@ private fun WorkIntervalRow(item: WorkIntervalItemDto, viewModel: TimerViewModel
                 )
             }
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { viewModel.openEditNameDetails(item) },
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .clickable { viewModel.openEditNameDetails(item) },
             ) {
                 Text(text = item.name)
                 item.details?.takeIf { it.isNotBlank() }?.let {
@@ -287,33 +291,44 @@ private fun WorkIntervalRow(item: WorkIntervalItemDto, viewModel: TimerViewModel
                 label = { Text(stringResource(R.string.timer_cost)) },
                 singleLine = true,
                 isError = status == CostStatus.ERROR,
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .onFocusChanged { focusState ->
-                        if (!focusState.isFocused) viewModel.commitCost(item)
-                    },
+                modifier =
+                    Modifier
+                        .padding(start = 8.dp)
+                        .onFocusChanged { focusState ->
+                            if (!focusState.isFocused) viewModel.commitCost(item)
+                        },
             )
         }
     }
 }
 
 @Composable
-private fun ProjectSelector(item: WorkIntervalItemDto, viewModel: TimerViewModel) {
+private fun ProjectSelector(
+    item: WorkIntervalItemDto,
+    viewModel: TimerViewModel,
+) {
     var expanded by remember { mutableStateOf(false) }
     val projects = viewModel.uiState.projects
-    val selectedName = projects.firstOrNull { it.id == item.projectId }?.name
-        ?: stringResource(R.string.timer_project)
+    val selectedName =
+        projects.firstOrNull { it.id == item.projectId }?.name
+            ?: stringResource(R.string.timer_project)
 
     Column {
         OutlinedButton(onClick = { expanded = true }, modifier = Modifier.padding(top = 4.dp)) {
             Text(selectedName)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text("—") }, onClick = { viewModel.updateProject(item, null); expanded = false })
+            DropdownMenuItem(text = { Text("—") }, onClick = {
+                viewModel.updateProject(item, null)
+                expanded = false
+            })
             projects.forEach { project ->
                 DropdownMenuItem(
                     text = { Text(project.name) },
-                    onClick = { viewModel.updateProject(item, project.id); expanded = false },
+                    onClick = {
+                        viewModel.updateProject(item, project.id)
+                        expanded = false
+                    },
                 )
             }
         }
@@ -321,13 +336,17 @@ private fun ProjectSelector(item: WorkIntervalItemDto, viewModel: TimerViewModel
 }
 
 @Composable
-private fun TagsSelector(item: WorkIntervalItemDto, viewModel: TimerViewModel) {
+private fun TagsSelector(
+    item: WorkIntervalItemDto,
+    viewModel: TimerViewModel,
+) {
     var showDialog by remember { mutableStateOf(false) }
-    val label = if (item.tags.isEmpty()) {
-        stringResource(R.string.timer_tags)
-    } else {
-        item.tags.joinToString(", ") { it.name }
-    }
+    val label =
+        if (item.tags.isEmpty()) {
+            stringResource(R.string.timer_tags)
+        } else {
+            item.tags.joinToString(", ") { it.name }
+        }
 
     OutlinedButton(onClick = { showDialog = true }, modifier = Modifier.padding(top = 4.dp)) {
         Text(label)

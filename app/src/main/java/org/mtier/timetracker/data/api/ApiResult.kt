@@ -5,7 +5,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import retrofit2.Response
 
-class ApiException(message: String) : Exception(message)
+class ApiException(
+    message: String,
+) : Exception(message)
 
 /**
  * Every mutation endpoint returns HTTP 200 with an embedded "Error" (or,
@@ -19,9 +21,10 @@ fun Response<JsonObject>.throwOnError(): JsonObject? {
     if (bodyError != null) throw ApiException(bodyError)
 
     if (!isSuccessful) {
-        val fromErrorBody = errorBody()?.string()?.let { raw ->
-            runCatching { Json.parseToJsonElement(raw) as? JsonObject }.getOrNull()?.errorMessage()
-        }
+        val fromErrorBody =
+            errorBody()?.string()?.let { raw ->
+                runCatching { Json.parseToJsonElement(raw) as? JsonObject }.getOrNull()?.errorMessage()
+            }
         throw ApiException(fromErrorBody ?: "Request failed (HTTP ${code()})")
     }
 

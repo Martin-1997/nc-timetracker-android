@@ -3,10 +3,15 @@ package org.mtier.timetracker.data.api.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EditNameRequest(val name: String)
+data class EditNameRequest(
+    val name: String,
+)
 
 @Serializable
-data class AddProjectRequest(val clientId: String = "", val color: String = "")
+data class AddProjectRequest(
+    val clientId: String = "",
+    val color: String = "",
+)
 
 @Serializable
 data class EditProjectRequest(
@@ -20,19 +25,33 @@ data class EditProjectRequest(
 )
 
 @Serializable
-data class StartTimerRequest(val projectId: String = "", val tags: String = "")
+data class StartTimerRequest(
+    val projectId: String = "",
+    val tags: String = "",
+)
 
 @Serializable
-data class UpdateNameDetailsRequest(val name: String? = null, val details: String? = null)
+data class UpdateNameDetailsRequest(
+    val name: String? = null,
+    val details: String? = null,
+)
 
 @Serializable
-data class UpdateProjectRequest(val projectId: String = "")
+data class UpdateProjectRequest(
+    val projectId: String = "",
+)
 
 @Serializable
-data class UpdateTagsRequest(val tagId: String)
+data class UpdateTagsRequest(
+    val tagId: String,
+)
 
 @Serializable
-data class UpdateTimeRequest(val start: String, val end: String, val tzoffset: Int)
+data class UpdateTimeRequest(
+    val start: String,
+    val end: String,
+    val tzoffset: Int,
+)
 
 @Serializable
 data class AddWorkIntervalRequest(
@@ -43,4 +62,6 @@ data class AddWorkIntervalRequest(
 )
 
 @Serializable
-data class AddCostRequest(val cost: String)
+data class AddCostRequest(
+    val cost: String,
+)

@@ -10,18 +10,20 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val LightColors = lightColorScheme(
-    primary = NcBlue,
-    onPrimary = androidx.compose.ui.graphics.Color.White,
-    secondaryContainer = NcBlueLight,
-    error = ErrorRed,
-)
+private val LightColors =
+    lightColorScheme(
+        primary = NcBlue,
+        onPrimary = androidx.compose.ui.graphics.Color.White,
+        secondaryContainer = NcBlueLight,
+        error = ErrorRed,
+    )
 
-private val DarkColors = darkColorScheme(
-    primary = NcBlueLight,
-    onPrimary = NcBlueDark,
-    error = ErrorRed,
-)
+private val DarkColors =
+    darkColorScheme(
+        primary = NcBlueLight,
+        onPrimary = NcBlueDark,
+        error = ErrorRed,
+    )
 
 /**
  * Dynamic color (Android 12+) is opted out on purpose: it would make the
@@ -38,12 +40,13 @@ fun TimeTrackerTheme(
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        darkTheme -> DarkColors
-        else -> LightColors
-    }
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            darkTheme -> DarkColors
+            else -> LightColors
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,
