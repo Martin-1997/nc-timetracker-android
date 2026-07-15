@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">Time Tracker</string>
+
+    <string name="login_server_url_label">Nextcloud-Serveradresse</string>
+    <string name="login_server_url_placeholder">https://cloud.beispiel.de</string>
+    <string name="login_continue">Weiter</string>
+    <string name="login_waiting_for_browser">Warte auf den Abschluss der Anmeldung…</string>
+    <string name="login_error_invalid_url">Bitte eine gültige Serveradresse eingeben</string>
+    <string name="login_error_generic">Server konnte nicht erreicht werden. Adresse prüfen und erneut versuchen.</string>
+
+    <string name="nav_timer">Timer</string>
+    <string name="nav_projects">Projekte</string>
+    <string name="nav_clients">Kunden</string>
+    <string name="nav_tags">Tags</string>
+    <string name="nav_sign_out">Abmelden</string>
+
+    <string name="timer_what_have_you_done">Was hast du gemacht?</string>
+    <string name="timer_start">Start</string>
+    <string name="timer_stop">Stopp</string>
+    <string name="timer_manual_entry">Manueller Eintrag</string>
+    <string name="timer_no_description">keine Beschreibung</string>
+    <string name="timer_quick_range">Schnellauswahl…</string>
+    <string name="timer_edit_entry">Eintrag bearbeiten</string>
+    <string name="timer_edit_time">Zeit bearbeiten</string>
+    <string name="timer_name">Name</string>
+    <string name="timer_details">Details</string>
+    <string name="timer_start_time">Start</string>
+    <string name="timer_end_time">Ende</string>
+    <string name="timer_project">Projekt</string>
+    <string name="timer_tags">Tags</string>
+    <string name="timer_cost">Kosten</string>
+    <string name="timer_save">Speichern</string>
+    <string name="timer_add_entry">Eintrag hinzufügen</string>
+    <string name="timer_delete_confirm_title">Bestätigung erforderlich</string>
+    <string name="timer_delete_confirm_message">Diesen Eintrag wirklich löschen?</string>
+
+    <string name="projects_new_name">Neuer Projektname</string>
+    <string name="projects_add">Projekt hinzufügen</string>
+    <string name="projects_client">Kunde</string>
+    <string name="projects_color">Farbe</string>
+    <string name="projects_locked">Gesperrt</string>
+    <string name="projects_archived">Archiviert</string>
+    <string name="projects_show_archived">Archivierte Projekte anzeigen</string>
+    <string name="projects_delete">Projekt löschen</string>
+    <string name="projects_edit">Projekt bearbeiten</string>
+
+    <string name="clients_new_name">Neuer Kundenname</string>
+    <string name="clients_add">Kunde hinzufügen</string>
+    <string name="clients_edit">Kunde bearbeiten</string>
+
+    <string name="tags_new_name">Neuer Tag-Name</string>
+    <string name="tags_add">Tag hinzufügen</string>
+    <string name="tags_edit">Tag bearbeiten</string>
+
+    <string name="common_cancel">Abbrechen</string>
+    <string name="common_confirm">Bestätigen</string>
+    <string name="common_delete">Löschen</string>
+    <string name="common_retry">Erneut versuchen</string>
+    <string name="common_error_generic">Etwas ist schiefgelaufen. Bitte erneut versuchen.</string>
+</resources>
