@@ -1,5 +1,6 @@
 package org.mtier.timetracker.di
 
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +13,6 @@ import org.mtier.timetracker.BuildConfig
 import org.mtier.timetracker.data.api.TimeTrackerApi
 import org.mtier.timetracker.data.network.AuthInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Singleton
 
 /**

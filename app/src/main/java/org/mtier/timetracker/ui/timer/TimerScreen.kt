@@ -8,12 +8,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -252,9 +257,9 @@ private fun WorkIntervalRow(
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            androidx.compose.material3.IconButton(onClick = { viewModel.resume(item) }) {
-                androidx.compose.material3.Icon(
-                    androidx.compose.material.icons.Icons.Filled.PlayArrow,
+            IconButton(onClick = { viewModel.resume(item) }) {
+                Icon(
+                    Icons.Filled.PlayArrow,
                     contentDescription = null,
                 )
             }
@@ -269,9 +274,9 @@ private fun WorkIntervalRow(
                     Text(text = it, style = MaterialTheme.typography.bodySmall)
                 }
             }
-            androidx.compose.material3.IconButton(onClick = { viewModel.requestDelete(item) }) {
-                androidx.compose.material3.Icon(
-                    androidx.compose.material.icons.Icons.Filled.Delete,
+            IconButton(onClick = { viewModel.requestDelete(item) }) {
+                Icon(
+                    Icons.Filled.Delete,
                     contentDescription = null,
                 )
             }
