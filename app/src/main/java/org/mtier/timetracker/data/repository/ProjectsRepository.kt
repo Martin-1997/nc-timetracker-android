@@ -29,6 +29,7 @@ class ProjectsRepository
             api.addProject(name, AddProjectRequest(clientId?.toString() ?: "", color)).throwOnError()
         }
 
+        @Suppress("LongParameterList")
         suspend fun editProject(
             id: Int,
             name: String,

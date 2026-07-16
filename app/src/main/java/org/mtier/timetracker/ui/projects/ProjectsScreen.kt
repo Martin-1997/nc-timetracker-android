@@ -40,9 +40,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mtier.timetracker.R
 import org.mtier.timetracker.data.api.dto.ClientDto
 import org.mtier.timetracker.data.api.dto.ProjectTableRowDto
+import org.mtier.timetracker.ui.theme.NcBlue
 
 private fun parseColor(hex: String?): Color =
-    runCatching { Color(android.graphics.Color.parseColor(hex ?: "#0082C9")) }.getOrDefault(Color(0xFF0082C9))
+    runCatching { Color(android.graphics.Color.parseColor(hex ?: "#0082C9")) }.getOrDefault(NcBlue)
 
 @Composable
 fun ProjectsScreen(
@@ -313,6 +314,8 @@ private fun EditProjectDialog(
     )
 }
 
+private const val COLOR_PICKER_GRID_COLUMNS = 6
+
 @Composable
 private fun ColorPickerDialog(
     onColorSelected: (String) -> Unit,
@@ -322,7 +325,7 @@ private fun ColorPickerDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.projects_color)) },
         text = {
-            LazyVerticalGrid(columns = GridCells.Fixed(6)) {
+            LazyVerticalGrid(columns = GridCells.Fixed(COLOR_PICKER_GRID_COLUMNS)) {
                 items(PROJECT_COLOR_PALETTE) { hex ->
                     ColorSwatch(
                         color = parseColor(hex),

@@ -411,16 +411,19 @@ private fun TagsPickerDialog(
     )
 }
 
+private const val SECONDS_PER_HOUR = 3600
+private const val SECONDS_PER_MINUTE = 60
+
 private fun formatDuration(seconds: Int): String {
-    val h = seconds / 3600
-    val m = (seconds % 3600) / 60
-    val s = seconds % 60
+    val h = seconds / SECONDS_PER_HOUR
+    val m = (seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+    val s = seconds % SECONDS_PER_MINUTE
     return "%02d:%02d:%02d".format(h, m, s)
 }
 
 private fun formatElapsed(seconds: Long): String {
-    val h = seconds / 3600
-    val m = (seconds % 3600) / 60
-    val s = seconds % 60
+    val h = seconds / SECONDS_PER_HOUR
+    val m = (seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+    val s = seconds % SECONDS_PER_MINUTE
     return "%02d:%02d:%02d".format(h, m, s)
 }

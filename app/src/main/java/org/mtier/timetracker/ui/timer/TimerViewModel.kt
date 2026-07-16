@@ -69,7 +69,7 @@ class TimerViewModel
         var workInput by mutableStateOf("")
             private set
 
-        var rangeFrom by mutableStateOf(Instant.now().minus(30, ChronoUnit.DAYS))
+        var rangeFrom by mutableStateOf(Instant.now().minus(DEFAULT_RANGE_DAYS, ChronoUnit.DAYS))
             private set
 
         var rangeTo by mutableStateOf(Instant.now())
@@ -165,7 +165,7 @@ class TimerViewModel
                     while (true) {
                         val start = runningStartEpochSecond ?: break
                         uiState = uiState.copy(liveElapsedSeconds = Instant.now().epochSecond - start)
-                        delay(1_000)
+                        delay(TICKER_INTERVAL_MS)
                     }
                 }
         }
@@ -335,7 +335,7 @@ class TimerViewModel
                     .onSuccess {
                         costStatus = costStatus + (item.id to CostStatus.SUCCESS)
                         refresh()
-                        delay(3_000)
+                        delay(COST_FEEDBACK_FLASH_MS)
                         costStatus = costStatus - item.id
                     }.onFailure {
                         costStatus = costStatus + (item.id to CostStatus.ERROR)
@@ -364,4 +364,9 @@ class TimerViewModel
         }
     }
 
-private fun formatCents(cents: Int): String = "%.2f".format(cents / 100.0)
+private const val DEFAULT_RANGE_DAYS = 30L
+private const val TICKER_INTERVAL_MS = 1_000L
+private const val COST_FEEDBACK_FLASH_MS = 3_000L
+private const val CENTS_PER_UNIT = 100.0
+
+private fun formatCents(cents: Int): String = "%.2f".format(cents / CENTS_PER_UNIT)

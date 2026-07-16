@@ -26,6 +26,7 @@ val DATE_RANGE_PRESETS =
         DateRangePreset("lastYear", "Last year"),
     )
 
+@Suppress("MagicNumber", "CyclomaticComplexMethod")
 fun resolvePresetRange(key: String): Pair<Instant, Instant>? {
     val zone = ZoneId.systemDefault()
     val today = LocalDate.now(zone)

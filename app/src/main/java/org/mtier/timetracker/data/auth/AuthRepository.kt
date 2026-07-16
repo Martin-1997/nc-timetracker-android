@@ -64,10 +64,11 @@ class AuthRepository
          * elapses, or a non-recoverable error occurs. The server returns 404
          * for "not done yet", which is the expected steady state while waiting.
          */
+        @Suppress("TooGenericExceptionCaught")
         suspend fun awaitCompletion(
             session: LoginFlowSession,
-            pollIntervalMillis: Long = 1_500,
-            timeoutMillis: Long = 10 * 60 * 1_000,
+            pollIntervalMillis: Long = DEFAULT_POLL_INTERVAL_MS,
+            timeoutMillis: Long = DEFAULT_LOGIN_TIMEOUT_MS,
         ): LoginFlowResult =
             try {
                 val credentials =
@@ -122,5 +123,10 @@ class AuthRepository
                     .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
                     .build()
             return retrofit.create(LoginFlowV2Api::class.java)
+        }
+
+        private companion object {
+            const val DEFAULT_POLL_INTERVAL_MS = 1_500L
+            const val DEFAULT_LOGIN_TIMEOUT_MS = 10 * 60 * 1_000L
         }
     }

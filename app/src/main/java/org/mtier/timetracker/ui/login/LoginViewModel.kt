@@ -44,6 +44,7 @@ class LoginViewModel
             serverUrlInput = value
         }
 
+        @Suppress("TooGenericExceptionCaught")
         fun startLogin() {
             if (serverUrlInput.isBlank()) {
                 uiState = LoginUiState.Error("Please enter a valid server address")
