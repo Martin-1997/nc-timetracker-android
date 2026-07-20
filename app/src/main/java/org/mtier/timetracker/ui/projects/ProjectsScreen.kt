@@ -2,6 +2,8 @@ package org.mtier.timetracker.ui.projects
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +15,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -40,10 +44,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mtier.timetracker.R
 import org.mtier.timetracker.data.api.dto.ClientDto
 import org.mtier.timetracker.data.api.dto.ProjectTableRowDto
-import org.mtier.timetracker.ui.theme.NcBlue
-
-private fun parseColor(hex: String?): Color =
-    runCatching { Color(android.graphics.Color.parseColor(hex ?: "#0082C9")) }.getOrDefault(NcBlue)
+import org.mtier.timetracker.data.api.dto.TagDto
+import org.mtier.timetracker.data.repository.NextcloudUser
+import org.mtier.timetracker.ui.common.ToggleChipGroup
+import org.mtier.timetracker.ui.theme.parseHexColor
 
 @Composable
 fun ProjectsScreen(
@@ -96,11 +100,16 @@ fun ProjectsScreen(
         EditProjectDialog(
             state = editState,
             clients = state.clients,
+            isAdmin = state.isAdmin,
+            availableTags = state.tags,
+            availableUsers = state.users,
             onNameChanged = { name -> viewModel.updateEditState { it.copy(name = name) } },
             onClientChanged = { id -> viewModel.updateEditState { it.copy(clientId = id) } },
             onPickColor = { colorPickerTarget = ColorPickerTarget.EditProject },
             onLockedChanged = { locked -> viewModel.updateEditState { it.copy(locked = locked) } },
             onArchivedChanged = { archived -> viewModel.updateEditState { it.copy(archived = archived) } },
+            onToggleTag = viewModel::toggleAllowedTag,
+            onToggleUser = viewModel::toggleAllowedUser,
             onSave = viewModel::saveEditing,
             onCancel = viewModel::cancelEditing,
             onDelete = { editState.project?.let(viewModel::requestDelete) },
@@ -173,7 +182,7 @@ private fun NewProjectForm(
                 singleLine = true,
                 modifier = Modifier.weight(1f),
             )
-            ColorSwatch(parseColor(color), onClick = onPickColor, size = 40.dp)
+            ColorSwatch(parseHexColor(color), onClick = onPickColor, size = 40.dp)
         }
         ClientDropdown(
             clients = clients,
@@ -248,7 +257,7 @@ private fun ProjectRow(
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ColorSwatch(parseColor(project.color), onClick = onClick)
+        ColorSwatch(parseHexColor(project.color), onClick = onClick)
         Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
             Text(text = project.name)
             project.client?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
@@ -259,15 +268,21 @@ private fun ProjectRow(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun EditProjectDialog(
     state: ProjectEditState,
     clients: List<ClientDto>,
+    isAdmin: Boolean,
+    availableTags: List<TagDto>,
+    availableUsers: List<NextcloudUser>,
     onNameChanged: (String) -> Unit,
     onClientChanged: (Int?) -> Unit,
     onPickColor: () -> Unit,
     onLockedChanged: (Boolean) -> Unit,
     onArchivedChanged: (Boolean) -> Unit,
+    onToggleTag: (Int) -> Unit,
+    onToggleUser: (String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
@@ -276,7 +291,7 @@ private fun EditProjectDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(R.string.projects_edit)) },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = state.name,
@@ -284,7 +299,7 @@ private fun EditProjectDialog(
                         singleLine = true,
                         modifier = Modifier.weight(1f),
                     )
-                    ColorSwatch(parseColor(state.color), onClick = onPickColor, size = 40.dp)
+                    ColorSwatch(parseHexColor(state.color), onClick = onPickColor, size = 40.dp)
                 }
                 ClientDropdown(
                     clients = clients,
@@ -292,9 +307,33 @@ private fun EditProjectDialog(
                     onClientChanged = onClientChanged,
                     modifier = Modifier.padding(top = 8.dp),
                 )
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
-                    Checkbox(checked = state.locked, onCheckedChange = onLockedChanged)
-                    Text(stringResource(R.string.projects_locked))
+                if (isAdmin) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                        Checkbox(checked = state.locked, onCheckedChange = onLockedChanged)
+                        Text(stringResource(R.string.projects_locked))
+                    }
+                    if (state.locked) {
+                        Text(
+                            text = stringResource(R.string.projects_allowed_tags),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        ToggleChipGroup(
+                            items = availableTags.map { it.id to it.name },
+                            selectedIds = state.allowedTagIds,
+                            onToggle = onToggleTag,
+                        )
+                        Text(
+                            text = stringResource(R.string.projects_allowed_users),
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
+                        ToggleChipGroup(
+                            items = availableUsers.map { it.uid to it.displayName },
+                            selectedIds = state.allowedUserUids,
+                            onToggle = onToggleUser,
+                        )
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = state.archived, onCheckedChange = onArchivedChanged)
@@ -328,7 +367,7 @@ private fun ColorPickerDialog(
             LazyVerticalGrid(columns = GridCells.Fixed(COLOR_PICKER_GRID_COLUMNS)) {
                 items(PROJECT_COLOR_PALETTE) { hex ->
                     ColorSwatch(
-                        color = parseColor(hex),
+                        color = parseHexColor(hex),
                         onClick = { onColorSelected(hex) },
                         size = 36.dp,
                     )

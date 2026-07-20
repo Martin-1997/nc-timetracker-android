@@ -39,6 +39,8 @@
     <string name="projects_client">Kunde</string>
     <string name="projects_color">Farbe</string>
     <string name="projects_locked">Gesperrt</string>
+    <string name="projects_allowed_tags">Erlaubte Tags</string>
+    <string name="projects_allowed_users">Erlaubte Benutzer</string>
     <string name="projects_archived">Archiviert</string>
     <string name="projects_show_archived">Archivierte Projekte anzeigen</string>
     <string name="projects_delete">Projekt löschen</string>

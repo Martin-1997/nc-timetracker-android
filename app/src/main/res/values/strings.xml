@@ -43,6 +43,8 @@
     <string name="projects_client">Client</string>
     <string name="projects_color">Color</string>
     <string name="projects_locked">Locked</string>
+    <string name="projects_allowed_tags">Allowed tags</string>
+    <string name="projects_allowed_users">Allowed users</string>
     <string name="projects_archived">Archived</string>
     <string name="projects_show_archived">Show archived projects</string>
     <string name="projects_delete">Delete project</string>
