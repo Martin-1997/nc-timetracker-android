@@ -9,10 +9,17 @@
     <string name="login_error_generic">Server konnte nicht erreicht werden. Adresse prüfen und erneut versuchen.</string>
 
     <string name="nav_timer">Timer</string>
+    <string name="nav_dashboard">Übersicht</string>
+    <string name="nav_goals">Ziele</string>
+    <string name="nav_reports">Berichte</string>
+    <string name="nav_timelines">Zeitachsen</string>
+    <string name="nav_timelines_admin">Zeitachsen (Admin)</string>
     <string name="nav_projects">Projekte</string>
     <string name="nav_clients">Kunden</string>
     <string name="nav_tags">Tags</string>
     <string name="nav_sign_out">Abmelden</string>
+    <string name="sign_out_confirm_title">Abmelden?</string>
+    <string name="sign_out_confirm_message">Du musst dich erneut anmelden, um die Zeiterfassung fortzusetzen.</string>
 
     <string name="timer_what_have_you_done">Was hast du gemacht?</string>
     <string name="timer_start">Start</string>
@@ -59,4 +66,54 @@
     <string name="common_delete">Löschen</string>
     <string name="common_retry">Erneut versuchen</string>
     <string name="common_error_generic">Etwas ist schiefgelaufen. Bitte erneut versuchen.</string>
+    <string name="common_none">Keine</string>
+    <string name="common_project">Projekt</string>
+    <string name="common_user">Benutzer</string>
+    <string name="common_client">Kunde</string>
+    <string name="common_daily">Täglich</string>
+    <string name="common_weekly">Wöchentlich</string>
+    <string name="common_monthly">Monatlich</string>
+    <string name="common_yearly">Jährlich</string>
+
+    <string name="goals_hours">Stunden</string>
+    <string name="goals_add">Ziel hinzufügen</string>
+    <string name="goals_summary">%1$d h %2$s · %3$.1f h in dieser Periode · %4$.1f h verbleibend</string>
+    <string name="goals_debt">%1$.1f h Rückstand · %2$.1f h gesamt verbleibend</string>
+
+    <string name="reports_group_by">Gruppieren nach: %1$s</string>
+    <string name="reports_then_by">Dann nach: %1$s</string>
+    <string name="reports_interval">Intervall: %1$s</string>
+    <string name="reports_time_entry">Zeiteintrag</string>
+    <string name="reports_filter_projects">Projekte filtern</string>
+    <string name="reports_filter_clients">Kunden filtern</string>
+    <string name="reports_export_csv">CSV exportieren</string>
+    <string name="reports_export_json">JSON exportieren</string>
+    <string name="reports_totals">Summen</string>
+    <string name="reports_when">Wann</string>
+    <string name="reports_duration">Dauer</string>
+    <string name="reports_cost">Kosten</string>
+
+    <string name="dashboard_total_time">Gesamtzeit: %1$s</string>
+    <string name="dashboard_total_costs">Gesamtkosten: %1$s</string>
+    <string name="dashboard_time_by">Zeit nach Kunde / Projekt</string>
+    <string name="dashboard_cost_by">Kosten nach Kunde / Projekt</string>
+    <string name="dashboard_no_data">Keine Daten vorhanden</string>
+    <string name="dashboard_refresh">Aktualisieren</string>
+    <string name="dashboard_hours_minutes">%1$d Stunden %2$d Minuten</string>
+
+    <string name="timelines_export">Zeitachse als CSV exportieren</string>
+    <string name="timelines_history">Exportierte Zeitachsen</string>
+    <string name="timelines_download">Herunterladen</string>
+    <string name="timelines_email">E-Mail</string>
+    <string name="timelines_email_title">Zeitachse per E-Mail senden</string>
+    <string name="timelines_email_address">E-Mail-Adresse(n), getrennt durch ;</string>
+    <string name="timelines_email_subject">Betreff</string>
+    <string name="timelines_email_message">Nachricht</string>
+    <string name="timelines_send">Senden</string>
+    <string name="timelines_delete_confirm">Zeitachse #%1$d wirklich löschen?</string>
+    <string name="timelines_admin_edit_status">Status der Zeitachse bearbeiten</string>
+    <string name="timelines_admin_pending">Ausstehend</string>
+    <string name="timelines_admin_approved">Genehmigt</string>
+    <string name="timelines_admin_rejected">Abgelehnt</string>
+    <string name="timelines_admin_save">Status speichern</string>
 </resources>

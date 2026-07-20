@@ -37,10 +37,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.mtier.timetracker.R
 import org.mtier.timetracker.data.api.dto.TagDto
 import org.mtier.timetracker.data.api.dto.WorkIntervalItemDto
-import org.mtier.timetracker.ui.common.DATE_RANGE_PRESETS
-import org.mtier.timetracker.ui.common.DatePickerButton
+import org.mtier.timetracker.ui.common.DateRangeRow
 import org.mtier.timetracker.ui.common.DateTimePickerButton
-import org.mtier.timetracker.ui.common.resolvePresetRange
+import org.mtier.timetracker.ui.common.formatDurationHms
 
 @Composable
 fun TimerScreen(
@@ -203,50 +202,13 @@ private fun TopBar(viewModel: TimerViewModel) {
     }
     if (state.isRunning) {
         Text(
-            text = formatElapsed(state.liveElapsedSeconds),
+            text = formatDurationHms(state.liveElapsedSeconds),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(top = 4.dp),
         )
     }
     OutlinedButton(onClick = viewModel::openManualEntry, modifier = Modifier.padding(top = 8.dp)) {
         Text(stringResource(R.string.timer_manual_entry))
-    }
-}
-
-@Composable
-private fun DateRangeRow(
-    from: java.time.Instant,
-    to: java.time.Instant,
-    onFromChanged: (java.time.Instant) -> Unit,
-    onToChanged: (java.time.Instant) -> Unit,
-    onPreset: (Pair<java.time.Instant, java.time.Instant>) -> Unit,
-    onRefresh: () -> Unit,
-) {
-    var presetMenuExpanded by remember { mutableStateOf(false) }
-
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
-        Column {
-            OutlinedButton(onClick = { presetMenuExpanded = true }) {
-                Text(stringResource(R.string.timer_quick_range))
-            }
-            DropdownMenu(expanded = presetMenuExpanded, onDismissRequest = { presetMenuExpanded = false }) {
-                DATE_RANGE_PRESETS.forEach { preset ->
-                    DropdownMenuItem(
-                        text = { Text(preset.label) },
-                        onClick = {
-                            presetMenuExpanded = false
-                            resolvePresetRange(preset.key)?.let(onPreset)
-                        },
-                    )
-                }
-            }
-        }
-        DatePickerButton(value = from, onValueChanged = onFromChanged)
-        Text("–", modifier = Modifier.padding(horizontal = 4.dp))
-        DatePickerButton(value = to, onValueChanged = onToChanged)
-        Button(onClick = onRefresh, modifier = Modifier.padding(start = 4.dp)) {
-            Text(stringResource(R.string.common_retry))
-        }
     }
 }
 
@@ -287,7 +249,7 @@ private fun WorkIntervalRow(
 
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
             OutlinedButton(onClick = { viewModel.openEditTime(item) }) {
-                Text(formatDuration(item.duration))
+                Text(formatDurationHms((item.duration ?: 0).toLong()))
             }
             val status = viewModel.costStatus[item.id]
             OutlinedTextField(
@@ -414,21 +376,4 @@ private fun TagsPickerDialog(
         },
         dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     )
-}
-
-private const val SECONDS_PER_HOUR = 3600
-private const val SECONDS_PER_MINUTE = 60
-
-private fun formatDuration(seconds: Int): String {
-    val h = seconds / SECONDS_PER_HOUR
-    val m = (seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
-    val s = seconds % SECONDS_PER_MINUTE
-    return "%02d:%02d:%02d".format(h, m, s)
-}
-
-private fun formatElapsed(seconds: Long): String {
-    val h = seconds / SECONDS_PER_HOUR
-    val m = (seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
-    val s = seconds % SECONDS_PER_MINUTE
-    return "%02d:%02d:%02d".format(h, m, s)
 }

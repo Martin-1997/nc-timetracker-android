@@ -12,7 +12,9 @@ data class WorkIntervalItemDto(
     val projectId: Int? = null,
     val running: Int = 0,
     val start: Long,
-    val duration: Int = 0,
+    // null while the interval is still running — the backend only knows the
+    // final duration once it's stopped.
+    val duration: Int? = null,
     val tags: List<TagDto> = emptyList(),
     val userUid: String? = null,
     val cost: Int? = null,
@@ -35,7 +37,8 @@ data class RunningIntervalDto(
     val projectId: Int? = null,
     val userUid: String? = null,
     val start: Long,
-    val duration: Int = 0,
+    // null while the interval is still running — see WorkIntervalItemDto.duration.
+    val duration: Int? = null,
     val running: Int = 0,
     val cost: Int? = null,
 )

@@ -65,3 +65,15 @@ data class AddWorkIntervalRequest(
 data class AddCostRequest(
     val cost: String,
 )
+
+@Serializable
+data class EditTimelineStatusRequest(
+    val status: String,
+)
+
+@Serializable
+data class EmailTimelineRequest(
+    val email: String,
+    val subject: String,
+    val content: String,
+)

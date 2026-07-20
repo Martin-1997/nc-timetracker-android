@@ -1,16 +1,22 @@
 package org.mtier.timetracker.data.api
 
 import kotlinx.serialization.json.JsonObject
+import okhttp3.ResponseBody
 import org.mtier.timetracker.data.api.dto.AddCostRequest
 import org.mtier.timetracker.data.api.dto.AddProjectRequest
 import org.mtier.timetracker.data.api.dto.AddWorkIntervalRequest
 import org.mtier.timetracker.data.api.dto.ClientsResponse
 import org.mtier.timetracker.data.api.dto.EditNameRequest
 import org.mtier.timetracker.data.api.dto.EditProjectRequest
+import org.mtier.timetracker.data.api.dto.EditTimelineStatusRequest
+import org.mtier.timetracker.data.api.dto.EmailTimelineRequest
+import org.mtier.timetracker.data.api.dto.GoalsResponse
 import org.mtier.timetracker.data.api.dto.ProjectsResponse
 import org.mtier.timetracker.data.api.dto.ProjectsTableResponse
+import org.mtier.timetracker.data.api.dto.ReportResponse
 import org.mtier.timetracker.data.api.dto.StartTimerRequest
 import org.mtier.timetracker.data.api.dto.TagsResponse
+import org.mtier.timetracker.data.api.dto.TimelinesResponse
 import org.mtier.timetracker.data.api.dto.UpdateNameDetailsRequest
 import org.mtier.timetracker.data.api.dto.UpdateProjectRequest
 import org.mtier.timetracker.data.api.dto.UpdateTagsRequest
@@ -18,10 +24,13 @@ import org.mtier.timetracker.data.api.dto.UpdateTimeRequest
 import org.mtier.timetracker.data.api.dto.WorkIntervalsResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 /**
  * Maps 1:1 onto OCA\TimeTracker\Controller\AjaxController — the exact same
@@ -166,4 +175,87 @@ interface TimeTrackerApi {
         @Path("id") id: Int,
         @Body body: AddCostRequest,
     ): Response<JsonObject>
+
+    // Reports / Dashboard / Timelines
+    @Suppress("LongParameterList")
+    @GET("apps/timetracker/ajax/report")
+    suspend fun getReport(
+        @Query("name") name: String,
+        @Query("from") from: Long,
+        @Query("to") to: Long,
+        @Query("group1") group1: String,
+        @Query("group2") group2: String,
+        @Query("timegroup") timegroup: String,
+        @Query("filterProjectId") filterProjectId: String,
+        @Query("filterClientId") filterClientId: String,
+    ): ReportResponse
+
+    @GET("apps/timetracker/ajax/goals")
+    suspend fun getGoals(): GoalsResponse
+
+    /**
+     * Form-urlencoded rather than a JSON [Body]: AjaxController::addGoal()
+     * takes no route parameter, and this backend only merges a JSON POST
+     * body into `$this->request` for controller methods that have at
+     * least one route/path parameter to resolve — confirmed empirically
+     * (a JSON body silently leaves `projectId` null here, failing a
+     * NOT NULL constraint, while the identical fields sent form-urlencoded
+     * work). postTimeline() below has the same zero-parameter shape.
+     */
+    @FormUrlEncoded
+    @POST("apps/timetracker/ajax/add-goal")
+    suspend fun addGoal(
+        @Field("projectId") projectId: String,
+        @Field("hours") hours: String,
+        @Field("interval") interval: String,
+    ): Response<JsonObject>
+
+    @POST("apps/timetracker/ajax/delete-goal/{id}")
+    suspend fun deleteGoal(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
+
+    /** See [addGoal]'s kdoc — same zero-route-parameter form-urlencoded requirement. */
+    @Suppress("LongParameterList")
+    @FormUrlEncoded
+    @POST("apps/timetracker/ajax/timeline")
+    suspend fun postTimeline(
+        @Field("name") name: String,
+        @Field("from") from: Long,
+        @Field("to") to: Long,
+        @Field("group1") group1: String,
+        @Field("group2") group2: String,
+        @Field("timegroup") timegroup: String,
+        @Field("filterProjectId") filterProjectId: String,
+        @Field("filterClientId") filterClientId: String,
+    ): Response<JsonObject>
+
+    @GET("apps/timetracker/ajax/timelines")
+    suspend fun getTimelines(): TimelinesResponse
+
+    @GET("apps/timetracker/ajax/timelines-admin")
+    suspend fun getTimelinesAdmin(): TimelinesResponse
+
+    @POST("apps/timetracker/ajax/edit-timeline/{id}")
+    suspend fun editTimeline(
+        @Path("id") id: Int,
+        @Body body: EditTimelineStatusRequest,
+    ): Response<JsonObject>
+
+    @POST("apps/timetracker/ajax/delete-timeline/{id}")
+    suspend fun deleteTimeline(
+        @Path("id") id: Int,
+    ): Response<JsonObject>
+
+    @POST("apps/timetracker/ajax/email-timeline/{id}")
+    suspend fun emailTimeline(
+        @Path("id") id: Int,
+        @Body body: EmailTimelineRequest,
+    ): Response<JsonObject>
+
+    @Streaming
+    @GET("apps/timetracker/ajax/download-timeline/{id}")
+    suspend fun downloadTimeline(
+        @Path("id") id: Int,
+    ): ResponseBody
 }
