@@ -23,6 +23,11 @@ Deferred to v1.1+ (still "online only / single user", just later,
 no architecture change needed — same backend, same auth, just more screens):
 Goals, Reports, Dashboard, Timelines, Timelines Admin.
 
+**Update:** all five v1.1+ screens above have since been implemented
+ahead of schedule — see the README's "Status" section. What's still
+actually open before a v1.0 tag is §6 (distribution pipeline) and §7
+(automated tests), not scope.
+
 Rationale: Timer+Projects+Clients+Tags is the complete daily-use loop (you
 can start tracking time against a real project/client/tag set on day one),
 while Reports/Dashboard/Timelines are analysis/export features layered on

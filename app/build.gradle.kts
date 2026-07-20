@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,28 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
 }
+
+// Release signing is optional at configuration time: keystore.properties is
+// gitignored (see keystore.properties.example), so debug builds and CI
+// checks that never touch assembleRelease must keep working without it.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties =
+    Properties().apply {
+        if (keystorePropertiesFile.exists()) {
+            keystorePropertiesFile.inputStream().use { load(it) }
+        }
+    }
+
+// If keystore.properties exists at all, every field it needs must actually
+// be there — otherwise a blank/missing value (e.g. storeFile) would surface
+// as an opaque NPE deep in Gradle's file resolver instead of saying what's
+// actually wrong.
+fun requiredSigningProperty(key: String): String =
+    keystoreProperties.getProperty(key)?.takeIf { it.isNotBlank() }
+        ?: throw GradleException(
+            "keystore.properties exists but has no value for '$key'. " +
+                "See keystore.properties.example for the required fields.",
+        )
 
 android {
     namespace = "org.mtier.timetracker"
@@ -23,6 +47,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = file(requiredSigningProperty("storeFile"))
+                storePassword = requiredSigningProperty("storePassword")
+                keyAlias = requiredSigningProperty("keyAlias")
+                keyPassword = requiredSigningProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -31,6 +66,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"

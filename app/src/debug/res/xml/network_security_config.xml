@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only (see src/debug/AndroidManifest.xml): allows plain HTTP
+  so the app can be pointed at local/self-hosted Nextcloud test instances
+  (e.g. over Tailscale, whose IP varies per device/session) without a
+  certificate. Release builds get the platform default, which blocks
+  cleartext traffic.
+
+  This is intentionally a blanket allowance rather than a <domain-config>
+  scoped to specific test hosts: Android's network security config only
+  matches literal domain names, not IP ranges, so it can't express "any
+  Tailscale/LAN address" declaratively — and the test address changes
+  across devices and sessions. The tradeoff: a debug build that's
+  accidentally pointed at a real server via http:// (typo'd scheme) will
+  silently succeed instead of failing loudly. Double-check the server URL
+  when testing against anything other than a known-local instance.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
