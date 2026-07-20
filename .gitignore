@@ -12,3 +12,5 @@ captures/
 keystore.properties
 *.jks
 *.keystore
+.claude/
+.kotlin/

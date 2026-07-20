@@ -10,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.mtier.timetracker.BuildConfig
+import org.mtier.timetracker.data.api.OcsApi
 import org.mtier.timetracker.data.api.TimeTrackerApi
 import org.mtier.timetracker.data.network.AuthInterceptor
 import retrofit2.Retrofit
@@ -65,4 +66,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideTimeTrackerApi(retrofit: Retrofit): TimeTrackerApi = retrofit.create(TimeTrackerApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideOcsApi(retrofit: Retrofit): OcsApi = retrofit.create(OcsApi::class.java)
 }

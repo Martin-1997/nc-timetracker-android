@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.LoginFlowResult
 import org.mtier.timetracker.data.auth.LoginFlowSession
+import org.mtier.timetracker.data.repository.ThemeRepository
 import javax.inject.Inject
 
 sealed interface LoginUiState {
@@ -33,6 +34,7 @@ class LoginViewModel
     @Inject
     constructor(
         private val authRepository: AuthRepository,
+        private val themeRepository: ThemeRepository,
     ) : ViewModel() {
         var serverUrlInput by mutableStateOf("")
             private set
@@ -64,7 +66,10 @@ class LoginViewModel
 
         private suspend fun awaitLogin(session: LoginFlowSession) {
             when (val result = authRepository.awaitCompletion(session)) {
-                is LoginFlowResult.Success -> uiState = LoginUiState.Success
+                is LoginFlowResult.Success -> {
+                    themeRepository.refresh()
+                    uiState = LoginUiState.Success
+                }
                 is LoginFlowResult.TimedOut -> uiState = LoginUiState.Error("Login timed out. Please try again.")
                 is LoginFlowResult.Error -> uiState = LoginUiState.Error(result.message)
             }

@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import org.mtier.timetracker.data.repository.ServerThemeColors
 
 private val LightColors =
     lightColorScheme(
@@ -29,14 +30,19 @@ private val DarkColors =
  * Dynamic color (Android 12+) is opted out on purpose: it would make the
  * app match the *device's* wallpaper-derived palette instead of the
  * Nextcloud server's theme, which defeats the "match the Files app" goal.
- * A future release fetches the server's actual theming colors from the
- * capabilities OCS endpoint instead (PLAN.md §5); for now every device
- * gets the same Nextcloud-blue palette regardless of Android version.
+ *
+ * [serverColors], when available (fetched from the capabilities OCS
+ * endpoint — see ThemeRepository), overrides the static Nextcloud-blue
+ * fallback with the actual connected server's configured theming color,
+ * for both light and dark mode (the capabilities API only exposes one
+ * "brand" color + its contrasting text color, not separate light/dark
+ * variants, so both schemes reuse the same pair).
  */
 @Composable
 fun TimeTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
+    serverColors: ServerThemeColors? = null,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -44,6 +50,15 @@ fun TimeTrackerTheme(
         when {
             dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            serverColors != null -> {
+                val primary = parseHexColor(serverColors.primaryHex)
+                val onPrimary = parseHexColor(serverColors.onPrimaryHex, fallback = androidx.compose.ui.graphics.Color.White)
+                if (darkTheme) {
+                    darkColorScheme(primary = primary, onPrimary = onPrimary, error = ErrorRed)
+                } else {
+                    lightColorScheme(primary = primary, onPrimary = onPrimary, error = ErrorRed)
+                }
+            }
             darkTheme -> DarkColors
             else -> LightColors
         }
