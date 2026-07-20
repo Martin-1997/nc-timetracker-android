@@ -15,6 +15,7 @@ import org.mtier.timetracker.data.api.dto.WorkIntervalItemDto
 import org.mtier.timetracker.data.repository.ProjectsRepository
 import org.mtier.timetracker.data.repository.TagsRepository
 import org.mtier.timetracker.data.repository.TimerRepository
+import org.mtier.timetracker.ui.common.formatCents
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
@@ -75,6 +76,18 @@ class TimerViewModel
         var rangeTo by mutableStateOf(Instant.now())
             private set
 
+        // Until the user explicitly picks a range (preset or date field), the
+        // Timer screen shows a "live" window that must keep sliding forward
+        // with real time. Otherwise an interval started after this
+        // ViewModel's construction — i.e. any interval in a normal session —
+        // ends up past the frozen `rangeTo` the moment it's stopped, and the
+        // periodic sync poll (see startSyncPolling) silently drops it from
+        // the list even though it's gone from the server's `running` array.
+        // Confirmed against the live server: a completed interval whose
+        // start is after the query's `to` is excluded entirely, not just
+        // from `running`.
+        private var isLiveRange = true
+
         var costDrafts by mutableStateOf<Map<Int, String>>(emptyMap())
             private set
 
@@ -98,6 +111,7 @@ class TimerViewModel
 
         init {
             refresh()
+            startSyncPolling()
             viewModelScope.launch {
                 runCatching { projectsRepository.getProjects() }
                     .onSuccess { uiState = uiState.copy(projects = it) }
@@ -108,25 +122,48 @@ class TimerViewModel
             }
         }
 
+        /**
+         * The timer can be started/stopped from another client (browser, a
+         * different device) at any time, so this screen can't rely solely on
+         * refreshing after its own mutations — it polls the server so a
+         * change made elsewhere (e.g. stopped in the browser) shows up here
+         * without the user having to hit the manual refresh button.
+         */
+        private fun startSyncPolling() {
+            viewModelScope.launch {
+                while (true) {
+                    delay(SYNC_POLL_INTERVAL_MS)
+                    refresh()
+                }
+            }
+        }
+
         fun onWorkInputChanged(value: String) {
             workInput = value
         }
 
         fun applyPreset(range: Pair<Instant, Instant>) {
+            isLiveRange = false
             rangeFrom = range.first
             rangeTo = range.second
             refresh()
         }
 
         fun onRangeFromChanged(value: Instant) {
+            isLiveRange = false
             rangeFrom = value
         }
 
         fun onRangeToChanged(value: Instant) {
+            isLiveRange = false
             rangeTo = value
         }
 
         fun refresh() {
+            if (isLiveRange) {
+                rangeFrom = Instant.now().minus(DEFAULT_RANGE_DAYS, ChronoUnit.DAYS)
+                rangeTo = Instant.now()
+            }
             uiState = uiState.copy(isLoading = true, errorMessage = null)
             viewModelScope.launch {
                 runCatching { timerRepository.getWorkIntervals(rangeFrom, rangeTo) }
@@ -271,7 +308,7 @@ class TimerViewModel
                 EditTimeState(
                     item = item,
                     start = Instant.ofEpochSecond(item.start),
-                    end = Instant.ofEpochSecond(item.start + item.duration),
+                    end = Instant.ofEpochSecond(item.start + (item.duration ?: 0)),
                 )
         }
 
@@ -366,7 +403,5 @@ class TimerViewModel
 
 private const val DEFAULT_RANGE_DAYS = 30L
 private const val TICKER_INTERVAL_MS = 1_000L
+private const val SYNC_POLL_INTERVAL_MS = 5_000L
 private const val COST_FEEDBACK_FLASH_MS = 3_000L
-private const val CENTS_PER_UNIT = 100.0
-
-private fun formatCents(cents: Int): String = "%.2f".format(cents / CENTS_PER_UNIT)
