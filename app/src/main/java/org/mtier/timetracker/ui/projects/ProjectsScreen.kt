@@ -213,16 +213,28 @@ private fun ClientDropdown(
     val selectedName = clients.firstOrNull { it.id == selectedClientId }?.name ?: ""
 
     Column(modifier = modifier) {
-        OutlinedTextField(
-            value = selectedName,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(stringResource(R.string.projects_client)) },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = true },
-        )
+        Box {
+            OutlinedTextField(
+                value = selectedName,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.projects_client)) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            // A readOnly OutlinedTextField still consumes touches itself
+            // (for focus/cursor placement), so a Modifier.clickable on the
+            // field never fires. An invisible Box on top intercepts the tap
+            // first instead.
+            Box(
+                modifier =
+                    Modifier
+                        .matchParentSize()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) { expanded = true },
+            )
+        }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 text = { Text("—") },
