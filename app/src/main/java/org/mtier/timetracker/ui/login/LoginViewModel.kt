@@ -1,5 +1,7 @@
 package org.mtier.timetracker.ui.login
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +12,8 @@ import kotlinx.coroutines.launch
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.LoginFlowResult
 import org.mtier.timetracker.data.auth.LoginFlowSession
+import org.mtier.timetracker.data.auth.NextcloudSsoManager
+import org.mtier.timetracker.data.auth.SsoEvent
 import org.mtier.timetracker.data.repository.ThemeRepository
 import javax.inject.Inject
 
@@ -35,12 +39,33 @@ class LoginViewModel
     constructor(
         private val authRepository: AuthRepository,
         private val themeRepository: ThemeRepository,
+        private val ssoManager: NextcloudSsoManager,
     ) : ViewModel() {
         var serverUrlInput by mutableStateOf("")
             private set
 
         var uiState by mutableStateOf<LoginUiState>(LoginUiState.EnteringServerUrl)
             private set
+
+        init {
+            viewModelScope.launch {
+                ssoManager.events.collect { event ->
+                    when (event) {
+                        is SsoEvent.AccountPicked -> {
+                            authRepository.completeSsoLogin(event.credentials)
+                            themeRepository.refresh()
+                            uiState = LoginUiState.Success
+                        }
+                        is SsoEvent.Error -> uiState = LoginUiState.Error(event.message)
+                        SsoEvent.Cancelled -> uiState = LoginUiState.EnteringServerUrl
+                    }
+                }
+            }
+        }
+
+        fun isFilesAppInstalled(context: Context): Boolean = ssoManager.isFilesAppInstalled(context)
+
+        fun startSsoLogin(activity: Activity) = ssoManager.pickAccount(activity)
 
         fun onServerUrlChanged(value: String) {
             serverUrlInput = value

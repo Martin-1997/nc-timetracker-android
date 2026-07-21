@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Time Tracker</string>
 
+    <string name="login_sso_button">Über die Nextcloud-App anmelden</string>
+    <string name="login_sso_or_divider">oder</string>
     <string name="login_server_url_label">Nextcloud-Serveradresse</string>
     <string name="login_server_url_placeholder">https://cloud.beispiel.de</string>
     <string name="login_continue">Weiter</string>

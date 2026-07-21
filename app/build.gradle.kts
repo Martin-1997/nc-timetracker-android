@@ -9,6 +9,19 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.play.publisher)
+}
+
+// com.github.nextcloud:Android-SingleSignOn transitively pulls in a
+// kotlin-stdlib newer than this project's pinned Kotlin compiler version,
+// which fails with a metadata-version mismatch during kspDebugKotlin.
+// stdlib is broadly backward-compatible, so pin the resolved version back
+// down to what the rest of the project (and the Kotlin plugin itself)
+// already uses instead of bumping Kotlin project-wide for one dependency.
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.get()}")
+    }
 }
 
 // Release signing is optional at configuration time: keystore.properties is
@@ -78,6 +91,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by com.github.nextcloud:Android-SingleSignOn (Files-app
+        // SSO, PLAN.md §3/§9).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -109,6 +125,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.security.crypto)
+    implementation(libs.nextcloud.sso)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

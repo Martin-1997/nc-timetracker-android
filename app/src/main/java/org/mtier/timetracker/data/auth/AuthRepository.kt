@@ -40,6 +40,14 @@ class AuthRepository
 
         fun signOut() = credentialStore.clear()
 
+        /** The Files-app SSO path (NextcloudSsoManager) doesn't go through
+         *  Login Flow v2 at all — it hands back a [SingleSignOnAccount][
+         *  com.nextcloud.android.sso.model.SingleSignOnAccount] whose token
+         *  behaves exactly like an app password for Basic Auth, so it's
+         *  stored the same way and every other repository/AuthInterceptor
+         *  needs no changes to work with it. */
+        fun completeSsoLogin(credentials: Credentials) = credentialStore.save(credentials)
+
         /**
          * Normalizes a user-entered server address (adds https:// if missing,
          * strips a trailing slash) and starts a Login Flow v2 session against

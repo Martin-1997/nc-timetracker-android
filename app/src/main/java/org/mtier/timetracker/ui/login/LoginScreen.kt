@@ -1,5 +1,6 @@
 package org.mtier.timetracker.ui.login
 
+import android.app.Activity
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -69,7 +72,27 @@ fun LoginScreen(
 
 @Composable
 private fun ServerUrlForm(viewModel: LoginViewModel) {
+    val context = LocalContext.current
+    // Only ever true on-device with the Nextcloud Files app installed —
+    // otherwise this stays hidden and the standalone Login Flow v2 form
+    // below is the only path, exactly as it was before Files-app SSO
+    // (PLAN.md §3/§9: a v1.x convenience, not a replacement).
+    val filesAppAvailable = remember(context) { viewModel.isFilesAppInstalled(context) }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (filesAppAvailable) {
+            OutlinedButton(
+                onClick = { (context as? Activity)?.let(viewModel::startSsoLogin) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.login_sso_button))
+            }
+            Text(
+                text = stringResource(R.string.login_sso_or_divider),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(vertical = 12.dp),
+            )
+        }
         OutlinedTextField(
             value = viewModel.serverUrlInput,
             onValueChange = viewModel::onServerUrlChanged,
