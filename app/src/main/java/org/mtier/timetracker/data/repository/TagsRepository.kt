@@ -4,6 +4,7 @@ import org.mtier.timetracker.data.api.TimeTrackerApi
 import org.mtier.timetracker.data.api.dto.EditNameRequest
 import org.mtier.timetracker.data.api.dto.TagDto
 import org.mtier.timetracker.data.api.throwOnError
+import org.mtier.timetracker.data.local.TagsCache
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,8 +13,14 @@ class TagsRepository
     @Inject
     constructor(
         private val api: TimeTrackerApi,
+        private val cache: TagsCache,
     ) {
-        suspend fun getTags(): List<TagDto> = api.getTags().tags
+        /** Network-first with a cache fallback on failure — see
+         *  ProjectsRepository.getProjects()'s kdoc for the rationale. */
+        suspend fun getTags(): List<TagDto> =
+            runCatching { api.getTags().tags }
+                .onSuccess { cache.put(it) }
+                .getOrElse { networkError -> cache.get() ?: throw networkError }
 
         suspend fun addTag(name: String) {
             api.addTag(name).throwOnError()
