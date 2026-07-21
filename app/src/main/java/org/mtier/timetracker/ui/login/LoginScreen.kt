@@ -16,7 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -76,11 +75,12 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
     // Only ever true on-device with the Nextcloud Files app installed —
     // otherwise this stays hidden and the standalone Login Flow v2 form
     // below is the only path, exactly as it was before Files-app SSO
-    // (PLAN.md §3/§9: a v1.x convenience, not a replacement).
-    val filesAppAvailable = remember(context) { viewModel.isFilesAppInstalled(context) }
+    // (PLAN.md §3/§9: a v1.x convenience, not a replacement). Computed
+    // asynchronously by the ViewModel (blocking PackageManager IPC doesn't
+    // belong on the composition/main thread), so it's null until known.
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        if (filesAppAvailable) {
+        if (viewModel.filesAppAvailable == true) {
             OutlinedButton(
                 onClick = { (context as? Activity)?.let(viewModel::startSsoLogin) },
                 modifier = Modifier.fillMaxWidth(),

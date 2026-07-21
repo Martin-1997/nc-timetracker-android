@@ -1,19 +1,20 @@
 package org.mtier.timetracker.ui.login
 
 import android.app.Activity
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.LoginFlowResult
 import org.mtier.timetracker.data.auth.LoginFlowSession
-import org.mtier.timetracker.data.auth.NextcloudSsoManager
 import org.mtier.timetracker.data.auth.SsoEvent
+import org.mtier.timetracker.data.auth.SsoLoginManager
 import org.mtier.timetracker.data.repository.ThemeRepository
 import javax.inject.Inject
 
@@ -39,7 +40,7 @@ class LoginViewModel
     constructor(
         private val authRepository: AuthRepository,
         private val themeRepository: ThemeRepository,
-        private val ssoManager: NextcloudSsoManager,
+        private val ssoManager: SsoLoginManager,
     ) : ViewModel() {
         var serverUrlInput by mutableStateOf("")
             private set
@@ -47,7 +48,16 @@ class LoginViewModel
         var uiState by mutableStateOf<LoginUiState>(LoginUiState.EnteringServerUrl)
             private set
 
+        /** Computed off the main thread — PackageManager.getPackageInfo() is
+         *  blocking Binder IPC and shouldn't run synchronously during Compose
+         *  composition. Null until the check completes. */
+        var filesAppAvailable by mutableStateOf<Boolean?>(null)
+            private set
+
         init {
+            viewModelScope.launch {
+                filesAppAvailable = withContext(Dispatchers.IO) { ssoManager.isFilesAppInstalled() }
+            }
             viewModelScope.launch {
                 ssoManager.events.collect { event ->
                     when (event) {
@@ -59,11 +69,10 @@ class LoginViewModel
                         is SsoEvent.Error -> uiState = LoginUiState.Error(event.message)
                         SsoEvent.Cancelled -> uiState = LoginUiState.EnteringServerUrl
                     }
+                    ssoManager.consumeEvent()
                 }
             }
         }
-
-        fun isFilesAppInstalled(context: Context): Boolean = ssoManager.isFilesAppInstalled(context)
 
         fun startSsoLogin(activity: Activity) = ssoManager.pickAccount(activity)
 

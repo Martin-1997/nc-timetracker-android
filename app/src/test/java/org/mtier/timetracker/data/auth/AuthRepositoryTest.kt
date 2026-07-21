@@ -5,8 +5,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mtier.timetracker.fakes.FakeClientsCache
 import org.mtier.timetracker.fakes.FakeCredentialStore
 import org.mtier.timetracker.fakes.FakeLoginFlowV2Api
+import org.mtier.timetracker.fakes.FakeProjectsCache
+import org.mtier.timetracker.fakes.FakeSsoAccountManager
+import org.mtier.timetracker.fakes.FakeTagsCache
 
 /** Covers AuthRepository.awaitCompletion's actual polling loop (PLAN.md §7
  *  names Login Flow v2 polling as a test target) by constructing a
@@ -15,7 +19,18 @@ import org.mtier.timetracker.fakes.FakeLoginFlowV2Api
  *  and so isn't itself unit-testable without a real HTTP call. */
 class AuthRepositoryTest {
     private val credentialStore = FakeCredentialStore()
-    private val repository = AuthRepository(credentialStore)
+    private val ssoAccountManager = FakeSsoAccountManager()
+    private val projectsCache = FakeProjectsCache()
+    private val clientsCache = FakeClientsCache()
+    private val tagsCache = FakeTagsCache()
+    private val repository =
+        AuthRepository(
+            credentialStore,
+            ssoAccountManager,
+            projectsCache,
+            clientsCache,
+            tagsCache,
+        )
 
     private fun session(api: FakeLoginFlowV2Api) =
         LoginFlowSession(
@@ -66,6 +81,23 @@ class AuthRepositoryTest {
 
             check(result is LoginFlowResult.Error)
             assertEquals("connection reset", result.message)
+        }
+
+    @Test
+    fun `signOut clears credentials, all three caches, and the SSO account`() =
+        runTest {
+            credentialStore.save(Credentials("https://cloud.example.com", "alice", "app-password-123"))
+            projectsCache.put(emptyList())
+            clientsCache.put(emptyList())
+            tagsCache.put(emptyList())
+
+            repository.signOut()
+
+            assertNull(credentialStore.load())
+            assertNull(projectsCache.get())
+            assertNull(clientsCache.get())
+            assertNull(tagsCache.get())
+            assertTrue(ssoAccountManager.cleared)
         }
 
     private companion object {

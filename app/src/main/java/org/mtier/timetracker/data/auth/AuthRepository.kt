@@ -6,6 +6,9 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import org.mtier.timetracker.data.local.ClientsCache
+import org.mtier.timetracker.data.local.ProjectsCache
+import org.mtier.timetracker.data.local.TagsCache
 import retrofit2.Retrofit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,10 +38,24 @@ class AuthRepository
     @Inject
     constructor(
         private val credentialStore: CredentialStorage,
+        private val ssoManager: SsoAccountManager,
+        private val projectsCache: ProjectsCache,
+        private val clientsCache: ClientsCache,
+        private val tagsCache: TagsCache,
     ) {
         fun currentCredentials(): Credentials? = credentialStore.load()
 
-        fun signOut() = credentialStore.clear()
+        /** Clears the credential store, the response caches (so the next
+         *  signed-in account on this device doesn't see a previous
+         *  account's cached Projects/Clients/Tags), and the SSO library's
+         *  own committed account. */
+        suspend fun signOut() {
+            credentialStore.clear()
+            projectsCache.clear()
+            clientsCache.clear()
+            tagsCache.clear()
+            ssoManager.clearAccount()
+        }
 
         /** The Files-app SSO path (NextcloudSsoManager) doesn't go through
          *  Login Flow v2 at all — it hands back a [SingleSignOnAccount][

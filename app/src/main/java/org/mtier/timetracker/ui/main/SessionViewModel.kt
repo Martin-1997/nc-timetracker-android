@@ -36,5 +36,7 @@ class SessionViewModel
             }
         }
 
-        fun signOut() = authRepository.signOut()
+        fun signOut() {
+            viewModelScope.launch { authRepository.signOut() }
+        }
     }

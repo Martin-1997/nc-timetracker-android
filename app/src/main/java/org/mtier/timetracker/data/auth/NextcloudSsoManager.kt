@@ -9,11 +9,37 @@ import com.nextcloud.android.sso.exceptions.AndroidGetAccountsPermissionNotGrant
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledException
 import com.nextcloud.android.sso.helper.SingleAccountHelper
 import com.nextcloud.android.sso.model.SingleSignOnAccount
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/** The one piece of [NextcloudSsoManager] that AuthRepository needs on
+ *  sign-out — split out so AuthRepository can be constructed in a plain JVM
+ *  unit test with a fake, instead of needing a real Android [Context] just
+ *  to satisfy NextcloudSsoManager's constructor. */
+interface SsoAccountManager {
+    fun clearAccount()
+}
+
+/** The subset of [NextcloudSsoManager] that LoginViewModel needs — split out
+ *  for the same reason as [SsoAccountManager]: a plain JVM unit test can
+ *  fake this without a real Android [Context]. MainActivity still injects
+ *  the concrete NextcloudSsoManager directly for handleActivityResult/
+ *  handlePermissionsResult, which need a real Activity/Intent and aren't
+ *  reachable from a ViewModel anyway. */
+interface SsoLoginManager {
+    val events: SharedFlow<SsoEvent>
+
+    fun consumeEvent()
+
+    fun isFilesAppInstalled(): Boolean
+
+    fun pickAccount(activity: Activity)
+}
 
 sealed interface SsoEvent {
     data class AccountPicked(
@@ -42,16 +68,35 @@ sealed interface SsoEvent {
 @Singleton
 class NextcloudSsoManager
     @Inject
-    constructor() {
-        private val _events = MutableSharedFlow<SsoEvent>(extraBufferCapacity = 1)
-        val events: SharedFlow<SsoEvent> = _events.asSharedFlow()
+    constructor(
+        @ApplicationContext private val context: Context,
+    ) : SsoAccountManager,
+        SsoLoginManager {
+        // replay = 1 so an event emitted before LoginViewModel's collector
+        // attaches (e.g. the process was killed while the user was in the
+        // separate Files app, and onActivityResult fires again before
+        // init{} has subscribed) isn't lost. Consumers must call
+        // consumeEvent() once they've acted on it, or the same event would
+        // otherwise be replayed to every future subscriber forever.
+        private val _events = MutableSharedFlow<SsoEvent>(replay = 1, extraBufferCapacity = 1)
+        override val events: SharedFlow<SsoEvent> = _events.asSharedFlow()
 
-        fun isFilesAppInstalled(context: Context): Boolean =
+        /** Drops the replayed event once a collector has acted on it. */
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun consumeEvent() = _events.resetReplayCache()
+
+        override fun isFilesAppInstalled(): Boolean =
             isFilesAppInstalled { pkg -> runCatching { context.packageManager.getPackageInfo(pkg, 0) }.isSuccess }
+
+        /** No official "clear account" API exists in the library — this
+         *  mirrors commitCurrentAccount's own storage mechanism (writing to
+         *  its SharedPreferences key) by committing an empty account name,
+         *  so a later getCurrentSingleSignOnAccount() call finds nothing. */
+        override fun clearAccount() = SingleAccountHelper.commitCurrentAccount(context, "")
 
         /** Launches the library's account chooser. Its result arrives later,
          *  via [handleActivityResult] — see this class's kdoc. */
-        fun pickAccount(activity: Activity) {
+        override fun pickAccount(activity: Activity) {
             try {
                 AccountImporter.pickNewAccount(activity)
             } catch (e: NextcloudFilesAppNotInstalledException) {
