@@ -1,0 +1,29 @@
+package org.mtier.timetracker.fakes
+
+import org.mtier.timetracker.data.api.dto.ProjectDto
+import org.mtier.timetracker.data.api.dto.TagDto
+import org.mtier.timetracker.data.local.ProjectsCache
+import org.mtier.timetracker.data.local.TagsCache
+
+/** In-memory stand-ins for the Room-backed caches, used so instrumented UI
+ *  tests don't need a real on-device database just to construct a
+ *  ProjectsRepository/TagsRepository. */
+class FakeProjectsCache : ProjectsCache {
+    private var stored: List<ProjectDto>? = null
+
+    override suspend fun get(): List<ProjectDto>? = stored
+
+    override suspend fun put(projects: List<ProjectDto>) {
+        stored = projects
+    }
+}
+
+class FakeTagsCache : TagsCache {
+    private var stored: List<TagDto>? = null
+
+    override suspend fun get(): List<TagDto>? = stored
+
+    override suspend fun put(tags: List<TagDto>) {
+        stored = tags
+    }
+}
