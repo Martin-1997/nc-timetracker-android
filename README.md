@@ -22,11 +22,22 @@ Version 1:
 Full feature parity with the web frontend has been reached: the original
 V1 MVP scope (Timer, Projects, Clients, Tags) plus every screen PLAN.md §1
 deferred to v1.1+ (Goals, Reports, Dashboard, Timelines, Timelines Admin)
-are all implemented — Gradle/Compose project, Login Flow v2 auth,
-Retrofit networking against the existing `AjaxController` endpoints (no
-backend changes), dynamic per-server theming, and admin-gating for
-admin-only features (locked-project allowed-tags/users, Timelines Admin),
-matching the Vue frontend's own `isAdmin` checks.
+are all implemented — Gradle/Compose project, Login Flow v2 auth (plus
+Files-app SSO via `Android-SingleSignOn`, see below), Retrofit networking
+against the existing `AjaxController` endpoints (no backend changes),
+dynamic per-server theming, and admin-gating for admin-only features
+(locked-project allowed-tags/users, Timelines Admin), matching the Vue
+frontend's own `isAdmin` checks. A thin Room-backed response cache for
+Projects/Clients/Tags (PLAN.md §4) falls back to the last-known list if
+the server's unreachable, rather than leaving pickers empty.
+
+Every layer has unit test coverage (ViewModels, repositories, the Login
+Flow v2 polling loop, the Room cache's fallback behavior) plus an
+instrumented Compose UI test for the Timer start/stop critical path — see
+"Testing" below. A `release.yml` GitHub Actions workflow builds a signed
+release APK from a tagged push and attaches it to a GitHub Release, with
+an optional (secret-gated) Play Store upload job; `fastlane/metadata/`
+holds the store listing text both F-Droid and Play consume.
 
 **Compiles, installs, and has been manually verified against a live
 Nextcloud test instance.** `./gradlew ktlintCheck detekt assembleDebug
@@ -49,11 +60,21 @@ identifiers, and all AjaxController endpoint contracts (paths, params,
 response shapes) were cross-checked against the actual PHP controller
 source, not assumed from memory.
 
+## Testing
+
+- `./gradlew testDebugUnitTest` — ViewModels/repositories/AuthRepository's
+  Login Flow v2 polling loop/Room cache fallback, all against hand-written
+  fakes (`app/src/test/.../fakes/`) rather than a reflection-based mocking
+  library — MockK's kotlin-reflect bootstrap proved unusably slow in this
+  project's build environment (multi-minute hangs, eventually an OOM),
+  and a plain fake has none of that cost.
+- `./gradlew connectedDebugAndroidTest` — one instrumented Compose UI test
+  (`TimerScreenTest`) drives the real production Composable/ViewModel/
+  repository stack through starting and stopping a timer, with only the
+  network interface faked; needs a connected device/emulator.
+
 ## Known V1 MVP limitations (by design, not oversights)
 
-- Files-app SSO (`Android-SingleSignOn`) isn't implemented yet — only the
-  standalone Login Flow v2. This is intentionally deferred to v1.x, not a
-  v1.0 requirement — see PLAN.md §3/§9.
 - The Timer's inline tag picker shows all tags regardless of whether the
   entry's project is locked (the backend still correctly restricts what
   actually gets saved either way — see `TimerRepository.kt`). The web
@@ -62,28 +83,24 @@ source, not assumed from memory.
   of it — full client-side filtering would need the backend to expose a
   locked project's allowed tags to non-admin users, which no existing
   endpoint does.
+- Files-app SSO only covers the case where the Files app is already
+  installed and the user grants account access on the first try; the
+  "permission not yet granted" retry path (`AndroidGetAccountsPermission-
+  NotGranted`) surfaces a message asking the user to try again rather than
+  automatically retrying the account picker itself.
+- The Play Store upload job in `release.yml` needs a `PLAY_SERVICE_ACCOUNT
+  _JSON` secret and the `PLAY_PUBLISHING_ENABLED` repo variable set before
+  it does anything — until then it's skipped (not failed), and GitHub
+  Releases + F-Droid still ship from the same tag on their own. Submitting
+  this app to F-Droid's own `fdroiddata` repo (a recipe pointing at this
+  repo) is a separate, one-time action for the project owner to take; this
+  repo's `fastlane/metadata/` is what that recipe would read from.
 
-- No automated tests yet — `app/src/test`/`app/src/androidTest` are both
-  empty. PLAN.md §7 calls for unit tests (ViewModels, repository layer,
-  Login Flow v2 polling) and instrumented UI tests for the critical path;
-  everything so far has instead been verified by manual live testing
-  against a real Nextcloud server (see above). This is the biggest gap
-  before a v1.0 tag, per PLAN.md §8 milestone 7.
-- No release/distribution pipeline yet — PLAN.md §6 calls for F-Droid
-  metadata, a Play Store listing, and a tag → signed release → GitHub
-  Release/F-Droid/Play upload workflow. `ci.yml` currently only lints,
-  runs unit tests, and uploads a debug APK artifact; there's no
-  `release.yml`.
-- The Room dependency is declared (`room-runtime`/`room-ktx`/
-  `room-compiler`) but nothing uses it yet — no `@Entity`/`@Dao` exists.
-  PLAN.md §4 scopes this to "a thin response cache" and the top-level
-  scope note already hedges with "except maybe caching", so this isn't a
-  hard requirement, just an unclaimed option.
-
-Since the last update, two items formerly listed here have been closed:
-Projects' "Allowed tags" / "Allowed users" editing for locked projects is
-now in the Android UI (admin-only, matching `ProjectsView.vue`'s own
-`isAdmin` gating — see `UsersRepository.isCurrentUserAdmin()`), and the
-app now fetches the server's actual theming color from the capabilities
-OCS endpoint instead of a static Nextcloud-blue palette (`ThemeRepository`,
-applied in `Theme.kt`).
+Since the last update, several items formerly listed here have been
+closed: Projects' "Allowed tags" / "Allowed users" editing for locked
+projects is in the Android UI (admin-only, matching `ProjectsView.vue`'s
+own `isAdmin` gating), the app fetches the server's actual theming color
+from the capabilities OCS endpoint instead of a static palette, automated
+tests exist (see "Testing" above), a thin Room response cache backs
+Projects/Clients/Tags, Files-app SSO is implemented, and a release
+pipeline builds signed APKs from tags.
