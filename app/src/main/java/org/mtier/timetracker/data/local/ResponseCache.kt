@@ -1,5 +1,6 @@
 package org.mtier.timetracker.data.local
 
+import androidx.room.withTransaction
 import org.mtier.timetracker.data.api.dto.ClientDto
 import org.mtier.timetracker.data.api.dto.ProjectDto
 import org.mtier.timetracker.data.api.dto.TagDto
@@ -40,10 +41,18 @@ interface TagsCache : ResponseCache<TagDto>
  * between app opens) — the metadata row is still (re)written either way,
  * since "populated" must flip to true even the very first time the fetched
  * list happens to already match an empty table.
+ *
+ * Each of get()/put()/clear() wraps its multiple DAO calls in one
+ * db.withTransaction {} — Room's default query executor is multi-threaded
+ * and neither call is otherwise atomic, so e.g. a concurrent clear() could
+ * otherwise interleave between get()'s isPopulated() check and its
+ * getAllEntities() read, turning a genuine miss into a false "legitimately
+ * empty" result.
  */
 @Suppress("LongParameterList")
 private class RoomResponseCache<Entity : Any, Dto>(
     private val cacheKey: String,
+    private val db: AppDatabase,
     private val metadataDao: CacheMetadataDao,
     private val getAllEntities: suspend () -> List<Entity>,
     private val replaceAllEntities: suspend (List<Entity>) -> Unit,
@@ -51,19 +60,26 @@ private class RoomResponseCache<Entity : Any, Dto>(
     private val toDto: (Entity) -> Dto,
     private val toEntity: (Dto) -> Entity,
 ) : ResponseCache<Dto> {
-    override suspend fun get(): List<Dto>? = if (metadataDao.isPopulated(cacheKey)) getAllEntities().map(toDto) else null
+    override suspend fun get(): List<Dto>? =
+        db.withTransaction {
+            if (metadataDao.isPopulated(cacheKey)) getAllEntities().map(toDto) else null
+        }
 
     override suspend fun put(items: List<Dto>) {
-        val newEntities = items.map(toEntity)
-        if (getAllEntities().toSet() != newEntities.toSet()) {
-            replaceAllEntities(newEntities)
+        db.withTransaction {
+            val newEntities = items.map(toEntity)
+            if (getAllEntities().toSet() != newEntities.toSet()) {
+                replaceAllEntities(newEntities)
+            }
+            metadataDao.markPopulated(CacheMetadataEntity(cacheKey))
         }
-        metadataDao.markPopulated(CacheMetadataEntity(cacheKey))
     }
 
     override suspend fun clear() {
-        clearEntities()
-        metadataDao.clear(cacheKey)
+        db.withTransaction {
+            clearEntities()
+            metadataDao.clear(cacheKey)
+        }
     }
 }
 
@@ -71,11 +87,13 @@ private class RoomResponseCache<Entity : Any, Dto>(
 class RoomProjectsCache
     @Inject
     constructor(
+        db: AppDatabase,
         dao: ProjectCacheDao,
         metadataDao: CacheMetadataDao,
     ) : ProjectsCache,
         ResponseCache<ProjectDto> by RoomResponseCache(
             cacheKey = "projects",
+            db = db,
             metadataDao = metadataDao,
             getAllEntities = dao::getAll,
             replaceAllEntities = dao::replaceAll,
@@ -88,11 +106,13 @@ class RoomProjectsCache
 class RoomClientsCache
     @Inject
     constructor(
+        db: AppDatabase,
         dao: ClientCacheDao,
         metadataDao: CacheMetadataDao,
     ) : ClientsCache,
         ResponseCache<ClientDto> by RoomResponseCache(
             cacheKey = "clients",
+            db = db,
             metadataDao = metadataDao,
             getAllEntities = dao::getAll,
             replaceAllEntities = dao::replaceAll,
@@ -105,11 +125,13 @@ class RoomClientsCache
 class RoomTagsCache
     @Inject
     constructor(
+        db: AppDatabase,
         dao: TagCacheDao,
         metadataDao: CacheMetadataDao,
     ) : TagsCache,
         ResponseCache<TagDto> by RoomResponseCache(
             cacheKey = "tags",
+            db = db,
             metadataDao = metadataDao,
             getAllEntities = dao::getAll,
             replaceAllEntities = dao::replaceAll,
