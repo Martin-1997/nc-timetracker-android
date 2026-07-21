@@ -18,56 +18,51 @@ interface CacheMetadataDao {
     suspend fun clear(cacheKey: String)
 }
 
-@Dao
-interface ProjectCacheDao {
-    @Query("SELECT * FROM cached_projects")
-    suspend fun getAll(): List<CachedProjectEntity>
-
+/**
+ * Shared shape for the three near-identical cache DAOs below. insertAll()
+ * can be fully generic — Room derives the target table from Entity's own
+ * @Entity annotation at each concrete call site — and replaceAll()'s
+ * clear-then-insert transaction logic only needs an abstract clear() to
+ * call. Each concrete DAO still has to provide its own clear() and getAll()
+ * (a Room @Query needs a literal SQL string, so the table name can't be
+ * made generic), but the rest is written once instead of three times.
+ */
+abstract class BaseCacheDao<Entity> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(entities: List<CachedProjectEntity>)
+    abstract suspend fun insertAll(entities: List<Entity>)
+
+    abstract suspend fun clear()
+
+    @Transaction
+    open suspend fun replaceAll(entities: List<Entity>) {
+        clear()
+        insertAll(entities)
+    }
+}
+
+@Dao
+abstract class ProjectCacheDao : BaseCacheDao<CachedProjectEntity>() {
+    @Query("SELECT * FROM cached_projects")
+    abstract suspend fun getAll(): List<CachedProjectEntity>
 
     @Query("DELETE FROM cached_projects")
-    suspend fun clear()
-
-    @Transaction
-    suspend fun replaceAll(entities: List<CachedProjectEntity>) {
-        clear()
-        insertAll(entities)
-    }
+    abstract override suspend fun clear()
 }
 
 @Dao
-interface ClientCacheDao {
+abstract class ClientCacheDao : BaseCacheDao<CachedClientEntity>() {
     @Query("SELECT * FROM cached_clients")
-    suspend fun getAll(): List<CachedClientEntity>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(entities: List<CachedClientEntity>)
+    abstract suspend fun getAll(): List<CachedClientEntity>
 
     @Query("DELETE FROM cached_clients")
-    suspend fun clear()
-
-    @Transaction
-    suspend fun replaceAll(entities: List<CachedClientEntity>) {
-        clear()
-        insertAll(entities)
-    }
+    abstract override suspend fun clear()
 }
 
 @Dao
-interface TagCacheDao {
+abstract class TagCacheDao : BaseCacheDao<CachedTagEntity>() {
     @Query("SELECT * FROM cached_tags")
-    suspend fun getAll(): List<CachedTagEntity>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(entities: List<CachedTagEntity>)
+    abstract suspend fun getAll(): List<CachedTagEntity>
 
     @Query("DELETE FROM cached_tags")
-    suspend fun clear()
-
-    @Transaction
-    suspend fun replaceAll(entities: List<CachedTagEntity>) {
-        clear()
-        insertAll(entities)
-    }
+    abstract override suspend fun clear()
 }
