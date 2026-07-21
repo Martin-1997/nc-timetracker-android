@@ -34,7 +34,7 @@ sealed interface LoginFlowResult {
 class AuthRepository
     @Inject
     constructor(
-        private val credentialStore: CredentialStore,
+        private val credentialStore: CredentialStorage,
     ) {
         fun currentCredentials(): Credentials? = credentialStore.load()
 

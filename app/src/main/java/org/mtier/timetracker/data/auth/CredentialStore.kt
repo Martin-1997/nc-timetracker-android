@@ -7,6 +7,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Extracted so AuthRepository can be constructed in a plain JVM unit test
+ *  against an in-memory fake — EncryptedSharedPreferences needs a real
+ *  Android Context, which isn't available there. */
+interface CredentialStorage {
+    fun save(credentials: Credentials)
+
+    fun load(): Credentials?
+
+    fun clear()
+}
+
 /**
  * Keystore-backed storage for the single account V1 supports. No plaintext
  * ever touches disk; the master key itself lives in the Android Keystore,
@@ -17,7 +28,7 @@ class CredentialStore
     @Inject
     constructor(
         @ApplicationContext context: Context,
-    ) {
+    ) : CredentialStorage {
         private val masterKey =
             MasterKey
                 .Builder(context)
@@ -33,7 +44,7 @@ class CredentialStore
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
             )
 
-        fun save(credentials: Credentials) {
+        override fun save(credentials: Credentials) {
             prefs
                 .edit()
                 .putString(KEY_SERVER_URL, credentials.serverUrl)
@@ -42,14 +53,14 @@ class CredentialStore
                 .apply()
         }
 
-        fun load(): Credentials? {
+        override fun load(): Credentials? {
             val serverUrl = prefs.getString(KEY_SERVER_URL, null) ?: return null
             val username = prefs.getString(KEY_USERNAME, null) ?: return null
             val appPassword = prefs.getString(KEY_APP_PASSWORD, null) ?: return null
             return Credentials(serverUrl, username, appPassword)
         }
 
-        fun clear() {
+        override fun clear() {
             prefs.edit().clear().apply()
         }
 

@@ -5,8 +5,10 @@
 naming:
   # Composable functions are PascalCase by Compose convention, not the plain
   # Kotlin function-naming convention this rule otherwise enforces correctly.
+  # Test methods use backtick-quoted sentence names (standard JUnit style),
+  # which the same plain-identifier pattern would also reject.
   FunctionNaming:
-    excludes: ['**/ui/**']
+    excludes: ['**/ui/**', '**/test/**', '**/androidTest/**']
   # Several files intentionally group one primary type with closely related
   # top-level declarations (e.g. DateRangePresets.kt holds the data class,
   # the preset list, and the resolver function together) rather than
