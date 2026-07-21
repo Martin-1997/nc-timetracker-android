@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.mtier.timetracker.data.local.AppDatabase
+import org.mtier.timetracker.data.local.CacheMetadataDao
 import org.mtier.timetracker.data.local.ClientCacheDao
 import org.mtier.timetracker.data.local.ClientsCache
 import org.mtier.timetracker.data.local.ProjectCacheDao
@@ -29,7 +30,14 @@ object DatabaseModule {
     @Singleton
     fun provideAppDatabase(
         @ApplicationContext context: Context,
-    ): AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME).build()
+    ): AppDatabase =
+        Room
+            .databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+            // This is purely a disposable response cache (PLAN.md §4), never
+            // the source of truth, so a schema bump can just wipe and start
+            // over rather than needing a real migration path.
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides
     fun provideProjectCacheDao(db: AppDatabase): ProjectCacheDao = db.projectCacheDao()
@@ -39,6 +47,9 @@ object DatabaseModule {
 
     @Provides
     fun provideTagCacheDao(db: AppDatabase): TagCacheDao = db.tagCacheDao()
+
+    @Provides
+    fun provideCacheMetadataDao(db: AppDatabase): CacheMetadataDao = db.cacheMetadataDao()
 }
 
 @Module

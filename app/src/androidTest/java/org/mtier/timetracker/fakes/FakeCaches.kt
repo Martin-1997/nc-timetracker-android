@@ -1,13 +1,15 @@
 package org.mtier.timetracker.fakes
 
+import org.mtier.timetracker.data.api.dto.ClientDto
 import org.mtier.timetracker.data.api.dto.ProjectDto
 import org.mtier.timetracker.data.api.dto.TagDto
+import org.mtier.timetracker.data.local.ClientsCache
 import org.mtier.timetracker.data.local.ProjectsCache
 import org.mtier.timetracker.data.local.TagsCache
 
 /** In-memory stand-ins for the Room-backed caches, used so instrumented UI
  *  tests don't need a real on-device database just to construct a
- *  ProjectsRepository/TagsRepository. */
+ *  ProjectsRepository/ClientsRepository/TagsRepository. */
 class FakeProjectsCache : ProjectsCache {
     private var stored: List<ProjectDto>? = null
 
@@ -15,6 +17,24 @@ class FakeProjectsCache : ProjectsCache {
 
     override suspend fun put(projects: List<ProjectDto>) {
         stored = projects
+    }
+
+    override suspend fun clear() {
+        stored = null
+    }
+}
+
+class FakeClientsCache : ClientsCache {
+    private var stored: List<ClientDto>? = null
+
+    override suspend fun get(): List<ClientDto>? = stored
+
+    override suspend fun put(clients: List<ClientDto>) {
+        stored = clients
+    }
+
+    override suspend fun clear() {
+        stored = null
     }
 }
 
@@ -25,5 +45,9 @@ class FakeTagsCache : TagsCache {
 
     override suspend fun put(tags: List<TagDto>) {
         stored = tags
+    }
+
+    override suspend fun clear() {
+        stored = null
     }
 }

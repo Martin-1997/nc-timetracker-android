@@ -7,6 +7,18 @@ import androidx.room.Query
 import androidx.room.Transaction
 
 @Dao
+interface CacheMetadataDao {
+    @Query("SELECT EXISTS(SELECT 1 FROM cache_metadata WHERE cacheKey = :cacheKey)")
+    suspend fun isPopulated(cacheKey: String): Boolean
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun markPopulated(entity: CacheMetadataEntity)
+
+    @Query("DELETE FROM cache_metadata WHERE cacheKey = :cacheKey")
+    suspend fun clear(cacheKey: String)
+}
+
+@Dao
 interface ProjectCacheDao {
     @Query("SELECT * FROM cached_projects")
     suspend fun getAll(): List<CachedProjectEntity>

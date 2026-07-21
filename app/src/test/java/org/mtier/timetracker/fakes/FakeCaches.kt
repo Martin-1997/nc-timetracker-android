@@ -17,6 +17,10 @@ class FakeProjectsCache : ProjectsCache {
     override suspend fun put(projects: List<ProjectDto>) {
         stored = projects
     }
+
+    override suspend fun clear() {
+        stored = null
+    }
 }
 
 class FakeClientsCache : ClientsCache {
@@ -27,6 +31,10 @@ class FakeClientsCache : ClientsCache {
     override suspend fun put(clients: List<ClientDto>) {
         stored = clients
     }
+
+    override suspend fun clear() {
+        stored = null
+    }
 }
 
 class FakeTagsCache : TagsCache {
@@ -36,5 +44,9 @@ class FakeTagsCache : TagsCache {
 
     override suspend fun put(tags: List<TagDto>) {
         stored = tags
+    }
+
+    override suspend fun clear() {
+        stored = null
     }
 }

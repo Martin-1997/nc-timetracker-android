@@ -16,11 +16,8 @@ class ClientsRepository
         private val cache: ClientsCache,
     ) {
         /** Network-first with a cache fallback on failure — see
-         *  ProjectsRepository.getProjects()'s kdoc for the rationale. */
-        suspend fun getClients(): List<ClientDto> =
-            runCatching { api.getClients().clients }
-                .onSuccess { cache.put(it) }
-                .getOrElse { networkError -> cache.get() ?: throw networkError }
+         *  fetchWithCacheFallback()'s kdoc for the rationale. */
+        suspend fun getClients(): List<ClientDto> = fetchWithCacheFallback(cache) { api.getClients().clients }
 
         suspend fun addClient(name: String) {
             api.addClient(name).throwOnError()

@@ -40,6 +40,16 @@ data class CachedTagEntity(
     val createdAt: Long?,
 )
 
+/** A row's mere presence means "put() has been called at least once for
+ *  this cache" — the only way to tell "never cached" (get() should return
+ *  null so callers fall back to a network error) apart from "cached and
+ *  legitimately empty" (get() should return emptyList()), since an empty
+ *  result set from the data table alone can't distinguish the two. */
+@Entity(tableName = "cache_metadata")
+data class CacheMetadataEntity(
+    @PrimaryKey val cacheKey: String,
+)
+
 fun CachedProjectEntity.toDto() = ProjectDto(id, name, color, clientId, locked, archived, createdAt)
 
 fun ProjectDto.toEntity() = CachedProjectEntity(id, name, color, clientId, locked, archived, createdAt)

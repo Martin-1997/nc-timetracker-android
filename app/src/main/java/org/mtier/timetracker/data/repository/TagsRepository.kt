@@ -16,11 +16,8 @@ class TagsRepository
         private val cache: TagsCache,
     ) {
         /** Network-first with a cache fallback on failure — see
-         *  ProjectsRepository.getProjects()'s kdoc for the rationale. */
-        suspend fun getTags(): List<TagDto> =
-            runCatching { api.getTags().tags }
-                .onSuccess { cache.put(it) }
-                .getOrElse { networkError -> cache.get() ?: throw networkError }
+         *  fetchWithCacheFallback()'s kdoc for the rationale. */
+        suspend fun getTags(): List<TagDto> = fetchWithCacheFallback(cache) { api.getTags().tags }
 
         suspend fun addTag(name: String) {
             api.addTag(name).throwOnError()

@@ -24,12 +24,10 @@ class ProjectsRepository
          * list rather than leaving the picker empty, and only rethrows if
          * there's nothing cached either (PLAN.md §4's "thin response
          * cache" — this list is what makes it worth having: mostly-static
-         * reference data, not the timer's own live state).
+         * reference data, not the timer's own live state). See
+         * fetchWithCacheFallback()'s kdoc for why this isn't runCatching.
          */
-        suspend fun getProjects(): List<ProjectDto> =
-            runCatching { api.getProjects().projects }
-                .onSuccess { cache.put(it) }
-                .getOrElse { networkError -> cache.get() ?: throw networkError }
+        suspend fun getProjects(): List<ProjectDto> = fetchWithCacheFallback(cache) { api.getProjects().projects }
 
         suspend fun getProjectsTable(showArchived: Boolean): List<ProjectTableRowDto> =
             api.getProjectsTable(if (showArchived) 1 else 0).items
