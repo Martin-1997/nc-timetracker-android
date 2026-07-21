@@ -19,6 +19,12 @@ import org.mtier.timetracker.data.local.ResponseCache
  * A [cache].put() failure (e.g. the on-device database is full) is
  * caught separately and best-effort: the fetch itself already succeeded,
  * so that data is still returned even if it couldn't be cached.
+ *
+ * A [cache].get() failure while falling back (e.g. a Room I/O error) is
+ * also caught: it's treated as a cache miss so the *original* network
+ * error is what gets rethrown, not the fallback's own failure — matching
+ * this function's documented contract of only ever surfacing the network
+ * error.
  */
 @Suppress("TooGenericExceptionCaught", "ThrowsCount")
 suspend fun <T> fetchWithCacheFallback(
@@ -31,7 +37,17 @@ suspend fun <T> fetchWithCacheFallback(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            return cache.get() ?: throw e
+            val cached =
+                try {
+                    cache.get()
+                } catch (ce: CancellationException) {
+                    throw ce
+                } catch (
+                    @Suppress("SwallowedException") cacheError: Exception,
+                ) {
+                    null
+                }
+            return cached ?: throw e
         }
     try {
         cache.put(fetched)
