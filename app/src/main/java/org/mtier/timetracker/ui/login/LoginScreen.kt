@@ -1,6 +1,8 @@
 package org.mtier.timetracker.ui.login
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Arrangement
@@ -82,7 +84,7 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (viewModel.filesAppAvailable == true) {
             OutlinedButton(
-                onClick = { (context as? Activity)?.let(viewModel::startSsoLogin) },
+                onClick = { context.findActivity()?.let(viewModel::startSsoLogin) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.login_sso_button))
@@ -112,6 +114,19 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
         }
     }
 }
+
+/** LocalContext.current isn't guaranteed to be an Activity directly — a
+ *  wrapping composable (theming, a dialog host, a preview harness) can
+ *  interpose a ContextWrapper. Currently a plain `as? Activity` cast always
+ *  succeeds here since nothing wraps it, but that's fragile: this unwraps
+ *  any ContextWrapper chain instead of silently no-op-ing the SSO button
+ *  the moment one gets introduced. */
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
 
 @Composable
 private fun LoadingIndicator(label: String) {
