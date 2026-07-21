@@ -10,10 +10,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import org.mtier.timetracker.data.local.AppDatabase
 import org.mtier.timetracker.data.local.CacheMetadataDao
+import org.mtier.timetracker.data.local.CacheStore
 import org.mtier.timetracker.data.local.ClientCacheDao
 import org.mtier.timetracker.data.local.ClientsCache
 import org.mtier.timetracker.data.local.ProjectCacheDao
 import org.mtier.timetracker.data.local.ProjectsCache
+import org.mtier.timetracker.data.local.RoomCacheStore
 import org.mtier.timetracker.data.local.RoomClientsCache
 import org.mtier.timetracker.data.local.RoomProjectsCache
 import org.mtier.timetracker.data.local.RoomTagsCache
@@ -63,4 +65,7 @@ abstract class CacheBindingsModule {
 
     @Binds
     abstract fun bindTagsCache(impl: RoomTagsCache): TagsCache
+
+    @Binds
+    abstract fun bindCacheStore(impl: RoomCacheStore): CacheStore
 }

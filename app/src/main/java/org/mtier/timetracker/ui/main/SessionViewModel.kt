@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.repository.UsersRepository
@@ -36,7 +37,30 @@ class SessionViewModel
             }
         }
 
-        fun signOut() {
-            viewModelScope.launch { authRepository.signOut() }
+        /**
+         * [onComplete] runs whether sign-out succeeds or throws: SessionViewModel
+         * is Activity-scoped (see TimeTrackerNavHost — hiltViewModel() is called
+         * outside any nav destination), so its viewModelScope outlives the
+         * navigation to the Login screen. The caller must wait for this callback
+         * before navigating away, or a fast re-login could race the in-flight
+         * cache/SSO-account clears and have its fresh writes clobbered.
+         */
+        @Suppress("TooGenericExceptionCaught")
+        fun signOut(onComplete: () -> Unit) {
+            viewModelScope.launch {
+                try {
+                    authRepository.signOut()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (
+                    @Suppress("SwallowedException") e: Exception,
+                ) {
+                    // Best-effort — still let the caller navigate to Login
+                    // even if sign-out partially failed, rather than
+                    // stranding the user on a screen for an account they
+                    // just tried to leave.
+                }
+                onComplete()
+            }
         }
     }

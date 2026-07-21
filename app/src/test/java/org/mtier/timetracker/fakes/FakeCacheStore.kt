@@ -1,14 +1,14 @@
 package org.mtier.timetracker.fakes
 
-import org.mtier.timetracker.data.auth.SsoAccountManager
+import org.mtier.timetracker.data.local.CacheStore
 
-class FakeSsoAccountManager : SsoAccountManager {
+class FakeCacheStore : CacheStore {
     var cleared = false
         private set
 
     var clearError: Throwable? = null
 
-    override fun clearAccount() {
+    override suspend fun clearAll() {
         clearError?.let { throw it }
         cleared = true
     }

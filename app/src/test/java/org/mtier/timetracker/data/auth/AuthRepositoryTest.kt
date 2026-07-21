@@ -5,12 +5,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.mtier.timetracker.fakes.FakeClientsCache
+import org.mtier.timetracker.fakes.FakeCacheStore
 import org.mtier.timetracker.fakes.FakeCredentialStore
 import org.mtier.timetracker.fakes.FakeLoginFlowV2Api
-import org.mtier.timetracker.fakes.FakeProjectsCache
 import org.mtier.timetracker.fakes.FakeSsoAccountManager
-import org.mtier.timetracker.fakes.FakeTagsCache
 
 /** Covers AuthRepository.awaitCompletion's actual polling loop (PLAN.md §7
  *  names Login Flow v2 polling as a test target) by constructing a
@@ -20,17 +18,8 @@ import org.mtier.timetracker.fakes.FakeTagsCache
 class AuthRepositoryTest {
     private val credentialStore = FakeCredentialStore()
     private val ssoAccountManager = FakeSsoAccountManager()
-    private val projectsCache = FakeProjectsCache()
-    private val clientsCache = FakeClientsCache()
-    private val tagsCache = FakeTagsCache()
-    private val repository =
-        AuthRepository(
-            credentialStore,
-            ssoAccountManager,
-            projectsCache,
-            clientsCache,
-            tagsCache,
-        )
+    private val cacheStore = FakeCacheStore()
+    private val repository = AuthRepository(credentialStore, ssoAccountManager, cacheStore)
 
     private fun session(api: FakeLoginFlowV2Api) =
         LoginFlowSession(
@@ -84,19 +73,26 @@ class AuthRepositoryTest {
         }
 
     @Test
-    fun `signOut clears credentials, all three caches, and the SSO account`() =
+    fun `signOut clears credentials, the cache store, and the SSO account`() =
         runTest {
             credentialStore.save(Credentials("https://cloud.example.com", "alice", "app-password-123"))
-            projectsCache.put(emptyList())
-            clientsCache.put(emptyList())
-            tagsCache.put(emptyList())
 
             repository.signOut()
 
             assertNull(credentialStore.load())
-            assertNull(projectsCache.get())
-            assertNull(clientsCache.get())
-            assertNull(tagsCache.get())
+            assertTrue(cacheStore.cleared)
+            assertTrue(ssoAccountManager.cleared)
+        }
+
+    @Test
+    fun `signOut still clears the SSO account even if the cache wipe fails`() =
+        runTest {
+            credentialStore.save(Credentials("https://cloud.example.com", "alice", "app-password-123"))
+            cacheStore.clearError = java.io.IOException("disk full")
+
+            repository.signOut()
+
+            assertNull(credentialStore.load())
             assertTrue(ssoAccountManager.cleared)
         }
 

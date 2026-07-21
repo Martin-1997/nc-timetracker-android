@@ -1,14 +1,13 @@
 package org.mtier.timetracker.data.auth
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import org.mtier.timetracker.data.local.ClientsCache
-import org.mtier.timetracker.data.local.ProjectsCache
-import org.mtier.timetracker.data.local.TagsCache
+import org.mtier.timetracker.data.local.CacheStore
 import retrofit2.Retrofit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,21 +38,31 @@ class AuthRepository
     constructor(
         private val credentialStore: CredentialStorage,
         private val ssoManager: SsoAccountManager,
-        private val projectsCache: ProjectsCache,
-        private val clientsCache: ClientsCache,
-        private val tagsCache: TagsCache,
+        private val cacheStore: CacheStore,
     ) {
         fun currentCredentials(): Credentials? = credentialStore.load()
 
-        /** Clears the credential store, the response caches (so the next
-         *  signed-in account on this device doesn't see a previous
-         *  account's cached Projects/Clients/Tags), and the SSO library's
-         *  own committed account. */
+        /**
+         * Clears the credential store, the response caches (so the next
+         * signed-in account on this device doesn't see a previous account's
+         * cached Projects/Clients/Tags), and the SSO library's own committed
+         * account. The cache wipe is best-effort and doesn't abort the rest
+         * of sign-out on failure (e.g. a Room I/O error) — credentials being
+         * cleared and the SSO account being cleared both matter more than a
+         * stale cache, which a fresh login will just overwrite anyway.
+         */
+        @Suppress("TooGenericExceptionCaught")
         suspend fun signOut() {
             credentialStore.clear()
-            projectsCache.clear()
-            clientsCache.clear()
-            tagsCache.clear()
+            try {
+                cacheStore.clearAll()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (
+                @Suppress("SwallowedException") e: Exception,
+            ) {
+                // Best-effort — see kdoc above.
+            }
             ssoManager.clearAccount()
         }
 

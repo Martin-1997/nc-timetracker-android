@@ -7,13 +7,11 @@ import org.junit.Test
 import org.mtier.timetracker.MainDispatcherRule
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.repository.ThemeRepository
-import org.mtier.timetracker.fakes.FakeClientsCache
+import org.mtier.timetracker.fakes.FakeCacheStore
 import org.mtier.timetracker.fakes.FakeCredentialStore
 import org.mtier.timetracker.fakes.FakeOcsApi
-import org.mtier.timetracker.fakes.FakeProjectsCache
 import org.mtier.timetracker.fakes.FakeSsoAccountManager
 import org.mtier.timetracker.fakes.FakeSsoLoginManager
-import org.mtier.timetracker.fakes.FakeTagsCache
 
 /**
  * AuthRepository.beginLoginFlow() builds its own Retrofit client for
@@ -36,13 +34,7 @@ class LoginViewModelTest {
 
     private fun viewModel(): LoginViewModel =
         LoginViewModel(
-            AuthRepository(
-                credentialStore,
-                FakeSsoAccountManager(),
-                FakeProjectsCache(),
-                FakeClientsCache(),
-                FakeTagsCache(),
-            ),
+            AuthRepository(credentialStore, FakeSsoAccountManager(), FakeCacheStore()),
             ThemeRepository(themeApi),
             FakeSsoLoginManager(),
         )

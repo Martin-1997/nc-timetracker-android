@@ -33,9 +33,10 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
     }
 
     fun onSignedOut() {
-        sessionViewModel.signOut()
-        navController.navigate(Destination.Login.route) {
-            popUpTo(0) { inclusive = true }
+        sessionViewModel.signOut {
+            navController.navigate(Destination.Login.route) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 
