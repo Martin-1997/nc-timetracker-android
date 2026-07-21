@@ -12,5 +12,6 @@ captures/
 keystore.properties
 *.jks
 *.keystore
+play-service-account.json
 .claude/
 .kotlin/

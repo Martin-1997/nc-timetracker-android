@@ -1,0 +1,12 @@
+A native Android client for the Nextcloud Time Tracker app (https://github.com/mtierltd/timetracker), talking directly to your own Nextcloud server — no third-party service in between.
+
+Features:
+* Timer: start, stop, and resume work, with inline project and tag assignment, manual entries, and cost tracking
+* Projects, Clients, and Tags: full management, including locked-project access control for admins
+* Goals: track progress toward weekly or monthly hour targets per project
+* Reports: flexible grouping and date-range filtering, with CSV/JSON export
+* Dashboard: time and cost breakdowns by client and project
+* Timelines: save and export reports, download or email them, and (for admins) review and approve submissions
+* Matches your server's own theming colors, and supports German and English
+
+Built to work identically on stock Android and GrapheneOS: no Google Play Services, Firebase/Cloud Messaging, or Google Sign-In dependency anywhere in the app. Sign in with either a standalone browser login (Nextcloud Login Flow v2) or, if the Nextcloud Files app is installed, its own account chooser. Your credentials are stored using Android's Keystore-backed encrypted storage — nothing is ever sent anywhere but your own server.

@@ -1,0 +1,12 @@
+Ein nativer Android-Client für die Nextcloud-Time-Tracker-App (https://github.com/mtierltd/timetracker) — er spricht direkt mit deinem eigenen Nextcloud-Server, ohne Umweg über einen Drittanbieter-Dienst.
+
+Funktionen:
+* Timer: Zeit starten, stoppen und fortsetzen, mit direkter Projekt- und Tag-Zuordnung, manuellen Einträgen und Kostenerfassung
+* Projekte, Kunden und Tags: vollständige Verwaltung, inklusive Zugriffssteuerung für gesperrte Projekte (Admins)
+* Ziele: Fortschritt gegenüber wöchentlichen oder monatlichen Stundenzielen je Projekt
+* Berichte: flexible Gruppierung und Zeitraum-Filter, CSV-/JSON-Export
+* Dashboard: Zeit- und Kostenaufschlüsselung nach Kunde und Projekt
+* Zeitachsen: Berichte speichern und exportieren, herunterladen oder per E-Mail versenden und (für Admins) prüfen/freigeben
+* Übernimmt die Theming-Farben deines Servers, verfügbar auf Deutsch und Englisch
+
+Läuft identisch auf herkömmlichem Android und GrapheneOS: keine Abhängigkeit von Google Play-Diensten, Firebase/Cloud Messaging oder Google-Anmeldung. Anmeldung entweder per Browser (Nextcloud Login Flow v2) oder, falls installiert, über die Kontoauswahl der Nextcloud-Files-App. Zugangsdaten werden ausschließlich verschlüsselt über den Android Keystore gespeichert — es wird nichts an Dritte übertragen.

@@ -1,0 +1,1 @@
+Initial release: Timer, Projects, Clients, Tags, Goals, Reports, Dashboard, Timelines, and Timelines Admin — full feature parity with the web client. Sign in via standalone browser login or the Nextcloud Files app.

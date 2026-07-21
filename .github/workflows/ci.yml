@@ -7,10 +7,6 @@ on:
 
 jobs:
   build:
-    # This is the first real compilation gate for this project: the
-    # environment this codebase was originally scaffolded in had no
-    # x86_64 Android build-tools emulation available, so nothing here has
-    # been compiled yet. Expect (and fix) build errors on the first runs.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

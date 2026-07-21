@@ -117,6 +117,20 @@ detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
 }
 
+// Play publishing is opt-in and inert without real Play Console
+// credentials — play-service-account.json is gitignored, written only by
+// release.yml's publish-play-store job (itself gated on a repo variable so
+// it doesn't even run until that secret exists). Every other build/check
+// task is unaffected either way.
+val playServiceAccountFile = rootProject.file("play-service-account.json")
+if (playServiceAccountFile.exists()) {
+    play {
+        serviceAccountCredentials.set(playServiceAccountFile)
+        track.set("internal")
+        defaultToAppBundles.set(false)
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
