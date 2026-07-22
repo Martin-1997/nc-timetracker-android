@@ -14,12 +14,18 @@ class FakeSsoLoginManager : SsoLoginManager {
 
     var filesAppInstalled = false
 
+    var consumeEventCallCount = 0
+        private set
+
     fun emit(event: SsoEvent) {
         _events.tryEmit(event)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun consumeEvent() = _events.resetReplayCache()
+    override fun consumeEvent() {
+        consumeEventCallCount++
+        _events.resetReplayCache()
+    }
 
     override fun isFilesAppInstalled(): Boolean = filesAppInstalled
 
