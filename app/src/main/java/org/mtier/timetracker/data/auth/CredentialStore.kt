@@ -50,6 +50,7 @@ class CredentialStore
                 .putString(KEY_SERVER_URL, credentials.serverUrl)
                 .putString(KEY_USERNAME, credentials.username)
                 .putString(KEY_APP_PASSWORD, credentials.appPassword)
+                .putBoolean(KEY_IS_SSO, credentials.isSso)
                 .apply()
         }
 
@@ -57,7 +58,8 @@ class CredentialStore
             val serverUrl = prefs.getString(KEY_SERVER_URL, null) ?: return null
             val username = prefs.getString(KEY_USERNAME, null) ?: return null
             val appPassword = prefs.getString(KEY_APP_PASSWORD, null) ?: return null
-            return Credentials(serverUrl, username, appPassword)
+            val isSso = prefs.getBoolean(KEY_IS_SSO, false)
+            return Credentials(serverUrl, username, appPassword, isSso)
         }
 
         override fun clear() {
@@ -69,5 +71,6 @@ class CredentialStore
             const val KEY_SERVER_URL = "server_url"
             const val KEY_USERNAME = "username"
             const val KEY_APP_PASSWORD = "app_password"
+            const val KEY_IS_SSO = "is_sso"
         }
     }
