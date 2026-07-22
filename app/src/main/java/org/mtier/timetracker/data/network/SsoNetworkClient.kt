@@ -49,33 +49,11 @@ class SsoNetworkClient
             return api
         }
 
-        fun execute(request: Request): Response {
-            val api = currentApi()
-            val query = request.url.encodedQuery?.let { "?$it" } ?: ""
-            val ncRequestBuilder =
-                NextcloudRequest
-                    .Builder()
-                    .setMethod(request.method)
-                    .setUrl(request.url.encodedPath + query)
-                    .setHeader(request.headers.toMultimap())
-            request.bodyAsUtf8String()?.let(ncRequestBuilder::setRequestBody)
-            val ncRequest = ncRequestBuilder.build()
-
-            return try {
-                val result = api.performNetworkRequestV2(ncRequest)
-                val headers = result.plainHeaders.associate { it.name to it.value }.toHeaders()
-                val contentType = result.getPlainHeader("Content-Type")?.value?.toMediaTypeOrNull()
-                Response
-                    .Builder()
-                    .request(request)
-                    .protocol(Protocol.HTTP_1_1)
-                    .code(HTTP_OK)
-                    .message("OK")
-                    .headers(headers)
-                    .body(result.body.readBytes().toResponseBody(contentType))
-                    .build()
+        fun execute(request: Request): Response =
+            try {
+                buildSsoResponse(request, currentApi().performNetworkRequestV2(buildNextcloudRequest(request)))
             } catch (e: NextcloudHttpRequestFailedException) {
-                errorResponse(request, e.statusCode, e.message)
+                buildSsoErrorResponse(request, e.statusCode, e.message)
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
@@ -84,33 +62,70 @@ class SsoNetworkClient
                 // not a real HTTP status, so there's nothing more specific
                 // to map it to. Callers already treat any non-2xx as a
                 // generic failure (see ApiResult.throwOnError).
-                errorResponse(request, HTTP_BAD_GATEWAY, e.message)
+                buildSsoErrorResponse(request, HTTP_BAD_GATEWAY, e.message)
             }
-        }
-
-        private fun errorResponse(
-            request: Request,
-            code: Int,
-            message: String?,
-        ): Response =
-            Response
-                .Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_1_1)
-                .code(code)
-                .message(message ?: "HTTP $code")
-                .body((message ?: "").toResponseBody(null))
-                .build()
-
-        private fun Request.bodyAsUtf8String(): String? {
-            val requestBody = body ?: return null
-            val buffer = Buffer()
-            requestBody.writeTo(buffer)
-            return buffer.readUtf8()
-        }
-
-        private companion object {
-            const val HTTP_OK = 200
-            const val HTTP_BAD_GATEWAY = 502
-        }
     }
+
+private const val HTTP_OK = 200
+private const val HTTP_BAD_GATEWAY = 502
+
+/** Pure OkHttp Request → NextcloudRequest conversion, split out from
+ *  [SsoNetworkClient.execute] so it's directly unit-testable without a real
+ *  Context/AIDL connection (see that class's kdoc for why those can't run
+ *  in a plain JVM test). */
+internal fun buildNextcloudRequest(request: Request): NextcloudRequest {
+    val query = request.url.encodedQuery?.let { "?$it" } ?: ""
+    val builder =
+        NextcloudRequest
+            .Builder()
+            .setMethod(request.method)
+            .setUrl(request.url.encodedPath + query)
+            .setHeader(request.headers.toMultimap())
+    request.bodyAsUtf8String()?.let(builder::setRequestBody)
+    return builder.build()
+}
+
+/** Pure success-path mapping from the AIDL relay's result back to a real
+ *  OkHttp Response — see [buildNextcloudRequest]'s kdoc for why this is
+ *  split out. Always HTTP 200: the AIDL relay's Response type doesn't carry
+ *  a status code on success (only body + headers), matching how the
+ *  library's own Retrofit2Helper treats any non-exception result. */
+internal fun buildSsoResponse(
+    request: Request,
+    result: com.nextcloud.android.sso.api.Response,
+): Response {
+    val headers = result.plainHeaders.associate { it.name to it.value }.toHeaders()
+    val contentType = result.getPlainHeader("Content-Type")?.value?.toMediaTypeOrNull()
+    return Response
+        .Builder()
+        .request(request)
+        .protocol(Protocol.HTTP_1_1)
+        .code(HTTP_OK)
+        .message("OK")
+        .headers(headers)
+        .body(result.body.readBytes().toResponseBody(contentType))
+        .build()
+}
+
+/** Pure failure-path mapping — see [buildNextcloudRequest]'s kdoc for why
+ *  this is split out. */
+internal fun buildSsoErrorResponse(
+    request: Request,
+    code: Int,
+    message: String?,
+): Response =
+    Response
+        .Builder()
+        .request(request)
+        .protocol(Protocol.HTTP_1_1)
+        .code(code)
+        .message(message ?: "HTTP $code")
+        .body((message ?: "").toResponseBody(null))
+        .build()
+
+private fun Request.bodyAsUtf8String(): String? {
+    val requestBody = body ?: return null
+    val buffer = Buffer()
+    requestBody.writeTo(buffer)
+    return buffer.readUtf8()
+}
