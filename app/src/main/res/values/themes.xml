@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme: Compose owns the actual color scheme
+         (see ui/theme/Theme.kt); this XML theme only needs to exist so the
+         Activity/Application can reference a Material3 DayNight parent
+         before Compose content is set. -->
+    <style name="Theme.TimeTracker" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

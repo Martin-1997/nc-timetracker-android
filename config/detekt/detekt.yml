@@ -1,0 +1,44 @@
+# Overrides on top of detekt's default ruleset (buildUponDefaultConfig = true
+# in app/build.gradle.kts). Only rules that need a project-specific tweak are
+# listed here; everything else keeps detekt's defaults.
+
+naming:
+  # Composable functions are PascalCase by Compose convention, not the plain
+  # Kotlin function-naming convention this rule otherwise enforces correctly.
+  # Test methods use backtick-quoted sentence names (standard JUnit style),
+  # which the same plain-identifier pattern would also reject.
+  FunctionNaming:
+    excludes: ['**/ui/**', '**/test/**', '**/androidTest/**']
+  # Several files intentionally group one primary type with closely related
+  # top-level declarations (e.g. DateRangePresets.kt holds the data class,
+  # the preset list, and the resolver function together) rather than
+  # splitting into one file per declaration.
+  MatchingDeclarationName:
+    active: false
+
+style:
+  MagicNumber:
+    # Top-level `val`s like the theme's color palette (ui/theme/Color.kt)
+    # are themselves the named constant — flagging the literal they hold
+    # would just push the same "magic" value into an equally arbitrary name.
+    ignorePropertyDeclaration: true
+  MaxLineLength:
+    maxLineLength: 140
+  ReturnCount:
+    # Guard-clause / early-return style is used deliberately throughout
+    # (e.g. CredentialStore.load()) and reads more clearly than the
+    # alternative nested-if form the default threshold of 2 would force.
+    max: 4
+
+complexity:
+  # Compose screen functions are naturally longer/take more parameters than
+  # plain functions because they describe a UI tree and its callbacks.
+  LongMethod:
+    excludes: ['**/ui/**']
+  LongParameterList:
+    excludes: ['**/ui/**']
+  TooManyFunctions:
+    # These map 1:1 onto backend endpoints or aggregate all actions for one
+    # screen by design (see TimeTrackerApi.kt's kdoc) — the count is
+    # intentional, not a sign the type should be split up.
+    excludes: ['**/data/api/**', '**/data/repository/**', '**/*ViewModel.kt']

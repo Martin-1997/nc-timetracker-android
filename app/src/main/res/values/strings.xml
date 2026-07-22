@@ -1,0 +1,132 @@
+<resources>
+    <string name="app_name">Time Tracker</string>
+
+    <!-- Login -->
+    <string name="login_sso_button">Sign in via Nextcloud app</string>
+    <string name="login_sso_or_divider">or</string>
+    <string name="login_server_url_label">Nextcloud server address</string>
+    <string name="login_server_url_placeholder">https://cloud.example.com</string>
+    <string name="login_continue">Continue</string>
+    <string name="login_waiting_for_browser">Waiting for you to finish logging in…</string>
+    <string name="login_error_invalid_url">Please enter a valid server address</string>
+    <string name="login_error_generic">Could not reach that server. Check the address and try again.</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">Timer</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_goals">Goals</string>
+    <string name="nav_reports">Reports</string>
+    <string name="nav_timelines">Timelines</string>
+    <string name="nav_timelines_admin">Timelines Admin</string>
+    <string name="nav_projects">Projects</string>
+    <string name="nav_clients">Clients</string>
+    <string name="nav_tags">Tags</string>
+    <string name="nav_sign_out">Sign out</string>
+    <string name="sign_out_confirm_title">Sign out?</string>
+    <string name="sign_out_confirm_message">You will need to sign in again to continue tracking time.</string>
+
+    <!-- Timer -->
+    <string name="timer_what_have_you_done">What have you done?</string>
+    <string name="timer_start">Start</string>
+    <string name="timer_stop">Stop</string>
+    <string name="timer_manual_entry">Manual entry</string>
+    <string name="timer_no_description">no description</string>
+    <string name="timer_quick_range">Quick range…</string>
+    <string name="timer_edit_entry">Edit entry</string>
+    <string name="timer_edit_time">Edit time</string>
+    <string name="timer_name">Name</string>
+    <string name="timer_details">Details</string>
+    <string name="timer_start_time">Start</string>
+    <string name="timer_end_time">End</string>
+    <string name="timer_project">Project</string>
+    <string name="timer_tags">Tags</string>
+    <string name="timer_cost">Cost</string>
+    <string name="timer_save">Save</string>
+    <string name="timer_add_entry">Add entry</string>
+    <string name="timer_delete_confirm_title">Confirmation required</string>
+    <string name="timer_delete_confirm_message">Are you sure you want to delete this entry?</string>
+
+    <!-- Projects -->
+    <string name="projects_new_name">New project name</string>
+    <string name="projects_add">Add project</string>
+    <string name="projects_client">Client</string>
+    <string name="projects_color">Color</string>
+    <string name="projects_locked">Locked</string>
+    <string name="projects_allowed_tags">Allowed tags</string>
+    <string name="projects_allowed_users">Allowed users</string>
+    <string name="projects_archived">Archived</string>
+    <string name="projects_show_archived">Show archived projects</string>
+    <string name="projects_delete">Delete project</string>
+    <string name="projects_edit">Edit project</string>
+
+    <!-- Clients -->
+    <string name="clients_new_name">New client name</string>
+    <string name="clients_add">Add client</string>
+    <string name="clients_edit">Edit client</string>
+
+    <!-- Tags -->
+    <string name="tags_new_name">New tag name</string>
+    <string name="tags_add">Add tag</string>
+    <string name="tags_edit">Edit tag</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_confirm">Confirm</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_error_generic">Something went wrong. Please try again.</string>
+    <string name="common_none">None</string>
+    <string name="common_project">Project</string>
+    <string name="common_user">User</string>
+    <string name="common_client">Client</string>
+    <string name="common_daily">Daily</string>
+    <string name="common_weekly">Weekly</string>
+    <string name="common_monthly">Monthly</string>
+    <string name="common_yearly">Yearly</string>
+
+    <!-- Goals -->
+    <string name="goals_hours">Hours</string>
+    <string name="goals_add">Add goal</string>
+    <string name="goals_summary">%1$d h %2$s · %3$.1f h worked this period · %4$.1f h remaining</string>
+    <string name="goals_debt">%1$.1f h debt · %2$.1f h total remaining</string>
+
+    <!-- Reports -->
+    <string name="reports_group_by">Group by: %1$s</string>
+    <string name="reports_then_by">Then by: %1$s</string>
+    <string name="reports_interval">Interval: %1$s</string>
+    <string name="reports_time_entry">Time Entry</string>
+    <string name="reports_filter_projects">Filter projects</string>
+    <string name="reports_filter_clients">Filter clients</string>
+    <string name="reports_export_csv">Export CSV</string>
+    <string name="reports_export_json">Export JSON</string>
+    <string name="reports_totals">Totals</string>
+    <string name="reports_when">When</string>
+    <string name="reports_duration">Duration</string>
+    <string name="reports_cost">Cost</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_total_time">Total time: %1$s</string>
+    <string name="dashboard_total_costs">Total costs: %1$s</string>
+    <string name="dashboard_time_by">Time by client / project</string>
+    <string name="dashboard_cost_by">Cost by client / project</string>
+    <string name="dashboard_no_data">No data to display</string>
+    <string name="dashboard_refresh">Refresh</string>
+    <string name="dashboard_hours_minutes">%1$d hours %2$d minutes</string>
+
+    <!-- Timelines -->
+    <string name="timelines_export">Export Timeline CSV</string>
+    <string name="timelines_history">Exported timelines</string>
+    <string name="timelines_download">Download</string>
+    <string name="timelines_email">Email</string>
+    <string name="timelines_email_title">Email timeline</string>
+    <string name="timelines_email_address">Email address(es), separated by ;</string>
+    <string name="timelines_email_subject">Subject</string>
+    <string name="timelines_email_message">Message</string>
+    <string name="timelines_send">Send</string>
+    <string name="timelines_delete_confirm">Are you sure you want to delete timeline #%1$d?</string>
+    <string name="timelines_admin_edit_status">Edit timeline status</string>
+    <string name="timelines_admin_pending">Pending</string>
+    <string name="timelines_admin_approved">Approved</string>
+    <string name="timelines_admin_rejected">Rejected</string>
+    <string name="timelines_admin_save">Save status</string>
+</resources>

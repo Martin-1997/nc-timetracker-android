@@ -1,0 +1,1 @@
+Erstveröffentlichung: Timer, Projekte, Kunden, Tags, Ziele, Berichte, Dashboard, Zeitachsen und Zeitachsen-Admin — vollständige Funktionsparität mit dem Web-Client. Anmeldung per Browser oder über die Nextcloud-Files-App.
