@@ -126,7 +126,13 @@ class NextcloudSsoManager
                     object : AccountImporter.IAccountAccessGranted {
                         override fun accountAccessGranted(account: SingleSignOnAccount) {
                             SingleAccountHelper.commitCurrentAccount(activity, account.name)
-                            val credentials = Credentials(serverUrl = account.url, username = account.userId, appPassword = account.token)
+                            val credentials =
+                                Credentials(
+                                    serverUrl = account.url,
+                                    username = account.userId,
+                                    appPassword = account.token,
+                                    isSso = true,
+                                )
                             _events.tryEmit(SsoEvent.AccountPicked(credentials))
                         }
                     },

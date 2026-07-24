@@ -16,11 +16,18 @@ import okhttp3.Credentials as OkHttpBasicCredentials
  * against a live Nextcloud instance to work without any CSRF token on
  * every AjaxController endpoint, including ones without @NoCSRFRequired
  * (see PLAN.md §2).
+ *
+ * For Files-app SSO sessions ([org.mtier.timetracker.data.auth.Credentials.isSso]),
+ * the stored "app password" isn't a real server credential (see that
+ * class's kdoc), so the rewritten request is handed to [SsoNetworkClient]
+ * instead — it never reaches [Interceptor.Chain.proceed], since the actual
+ * network call happens in the Nextcloud Files app's own process over AIDL.
  */
 class AuthInterceptor
     @Inject
     constructor(
         private val credentialStore: CredentialStore,
+        private val ssoNetworkClient: SsoNetworkClient,
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val original = chain.request()
@@ -34,6 +41,13 @@ class AuthInterceptor
                     .host(serverUrl.host)
                     .port(serverUrl.port)
                     .build()
+
+            if (credentials.isSso) {
+                // No "OCS-APIRequest" header here — the SSO library adds it
+                // itself and throws if it's already present.
+                val rewritten = original.newBuilder().url(rewrittenUrl).build()
+                return ssoNetworkClient.execute(rewritten)
+            }
 
             val authenticated =
                 original
