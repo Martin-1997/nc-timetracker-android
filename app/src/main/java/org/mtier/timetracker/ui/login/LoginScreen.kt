@@ -5,27 +5,31 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.mtier.timetracker.R
+import org.mtier.timetracker.ui.theme.NcBlue
+import org.mtier.timetracker.ui.theme.NcBlueButtonDark
 
 @Composable
 fun LoginScreen(
@@ -48,6 +52,14 @@ fun LoginScreen(
         modifier =
             Modifier
                 .fillMaxSize()
+                // Matches the Nextcloud Files app's own login screen: a
+                // fixed brand-blue background regardless of system
+                // dark/light mode, same as the Files app's own login screen
+                // (a pre-auth branding screen, not themed content — no
+                // per-server theming color is available yet anyway, since
+                // that's only fetched after a session exists, see
+                // ThemeRepository).
+                .background(NcBlue)
                 .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,6 +67,7 @@ fun LoginScreen(
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineMedium,
+            color = Color.White,
         )
 
         Column(modifier = Modifier.padding(top = 32.dp)) {
@@ -83,8 +96,9 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (viewModel.filesAppAvailable == true) {
-            OutlinedButton(
+            Button(
                 onClick = { context.findActivity()?.let(viewModel::startSsoLogin) },
+                colors = ButtonDefaults.buttonColors(containerColor = NcBlueButtonDark, contentColor = Color.White),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(stringResource(R.string.login_sso_button))
@@ -92,6 +106,7 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
             Text(
                 text = stringResource(R.string.login_sso_or_divider),
                 style = MaterialTheme.typography.bodySmall,
+                color = Color.White,
                 modifier = Modifier.padding(vertical = 12.dp),
             )
         }
@@ -105,6 +120,7 @@ private fun ServerUrlForm(viewModel: LoginViewModel) {
         )
         Button(
             onClick = viewModel::startLogin,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = NcBlue),
             modifier =
                 Modifier
                     .fillMaxWidth()
@@ -131,8 +147,13 @@ private tailrec fun Context.findActivity(): Activity? =
 @Composable
 private fun LoadingIndicator(label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator()
-        Text(text = label, modifier = Modifier.padding(top = 16.dp), textAlign = TextAlign.Center)
+        CircularProgressIndicator(color = Color.White)
+        Text(
+            text = label,
+            color = Color.White,
+            modifier = Modifier.padding(top = 16.dp),
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -142,8 +163,12 @@ private fun ErrorState(
     onRetry: () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = message, textAlign = TextAlign.Center)
-        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) {
+        Text(text = message, color = Color.White, textAlign = TextAlign.Center)
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = NcBlue),
+            modifier = Modifier.padding(top = 16.dp),
+        ) {
             Text(stringResource(R.string.common_retry))
         }
     }
