@@ -112,6 +112,21 @@ android {
     }
 }
 
+// Default output name is app-<buildType>.apk — renamed so a GitHub Release
+// attachment (or a sideloaded debug build) is identifiable on its own,
+// without needing to check which repo/commit it came from. outputFileName
+// only exists on the internal VariantOutputImpl, not the public VariantOutput
+// interface — AGP hasn't stabilized a public API for this yet.
+androidComponents {
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                output.outputFileName.set("TimeTracker-${android.defaultConfig.versionName}-${variant.buildType}.apk")
+            }
+        }
+    }
+}
+
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
