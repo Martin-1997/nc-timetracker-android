@@ -2,6 +2,7 @@ package org.mtier.timetracker.data.network
 
 import android.content.Context
 import com.google.gson.Gson
+import com.nextcloud.android.sso.QueryParam
 import com.nextcloud.android.sso.aidl.NextcloudRequest
 import com.nextcloud.android.sso.api.NextcloudAPI
 import com.nextcloud.android.sso.exceptions.NextcloudHttpRequestFailedException
@@ -72,14 +73,34 @@ private const val HTTP_BAD_GATEWAY = 502
 /** Pure OkHttp Request → NextcloudRequest conversion, split out from
  *  [SsoNetworkClient.execute] so it's directly unit-testable without a real
  *  Context/AIDL connection (see that class's kdoc for why those can't run
- *  in a plain JVM test). */
+ *  in a plain JVM test).
+ *
+ * Query parameters are passed via [NextcloudRequest]'s structured
+ * `parameter`/[QueryParam] mechanism, not appended to the `url` string —
+ * confirmed live against a real device that the Files app's own
+ * OwnCloudClient only reads query parameters from that structured field
+ * and silently drops anything appended after "?" directly in `url` (the
+ * library's own Retrofit integration, NextcloudRetrofitServiceMethod,
+ * does the same: it builds `url` from just the path and passes @Query
+ * parameters separately). Baking the query into `url` instead — this
+ * function's original implementation — reached the Files app fine but
+ * silently never made it into the actual HTTP request sent to the
+ * server, breaking every endpoint that depends on query parameters
+ * (Reports/Dashboard's report endpoint hardest, since the server's own
+ * SQL query builder produces invalid SQL when every filter is missing —
+ * see PR description).
+ */
 internal fun buildNextcloudRequest(request: Request): NextcloudRequest {
-    val query = request.url.encodedQuery?.let { "?$it" } ?: ""
+    val queryParams =
+        (0 until request.url.querySize).map { i ->
+            QueryParam(request.url.queryParameterName(i), request.url.queryParameterValue(i) ?: "")
+        }
     val builder =
         NextcloudRequest
             .Builder()
             .setMethod(request.method)
-            .setUrl(request.url.encodedPath + query)
+            .setUrl(request.url.encodedPath)
+            .setParameter(queryParams)
             .setHeader(request.headers.toMultimap())
     request.bodyAsUtf8String()?.let(builder::setRequestBody)
     return builder.build()

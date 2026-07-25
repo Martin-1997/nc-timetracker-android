@@ -1,5 +1,6 @@
 package org.mtier.timetracker.data.network
 
+import com.nextcloud.android.sso.QueryParam
 import com.nextcloud.android.sso.api.AidlNetworkRequest
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -19,7 +20,7 @@ import okhttp3.Request as OkHttpRequest
  */
 class SsoNetworkClientTest {
     @Test
-    fun `buildNextcloudRequest carries over method, path plus query, and headers`() {
+    fun `buildNextcloudRequest carries over method, path, query parameters, and headers`() {
         val request =
             OkHttpRequest
                 .Builder()
@@ -31,7 +32,15 @@ class SsoNetworkClientTest {
         val ncRequest = buildNextcloudRequest(request)
 
         assertEquals("GET", ncRequest.method)
-        assertEquals("/apps/timetracker/ajax/work-intervals?from=1&to=2", ncRequest.url)
+        // The path alone — query parameters go through the structured
+        // QueryParam mechanism below, not appended to the url string (see
+        // this function's kdoc for why: the Files app's own OwnCloudClient
+        // silently drops anything appended after "?" directly in url).
+        assertEquals("/apps/timetracker/ajax/work-intervals", ncRequest.url)
+        assertEquals(
+            listOf(QueryParam("from", "1"), QueryParam("to", "2")),
+            ncRequest.parameterV2.toList(),
+        )
         assertEquals(listOf("true"), ncRequest.header["OCS-APIRequest"])
         assertNull(ncRequest.requestBody)
     }
@@ -52,12 +61,13 @@ class SsoNetworkClientTest {
     }
 
     @Test
-    fun `buildNextcloudRequest omits the query string when there isn't one`() {
+    fun `buildNextcloudRequest has no query parameters when there aren't any`() {
         val request = OkHttpRequest.Builder().url("https://dynamic.invalid/apps/timetracker/ajax/tags").get().build()
 
         val ncRequest = buildNextcloudRequest(request)
 
         assertEquals("/apps/timetracker/ajax/tags", ncRequest.url)
+        assertEquals(emptyList<QueryParam>(), ncRequest.parameterV2.toList())
     }
 
     @Test
