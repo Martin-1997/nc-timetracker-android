@@ -13,6 +13,11 @@ on:
 jobs:
   build-signed-release:
     runs-on: ubuntu-latest
+    # Creating a GitHub Release needs contents: write — the default
+    # GITHUB_TOKEN is read-only unless a repo/org sets otherwise, so this
+    # is declared explicitly rather than relying on that repo setting.
+    permissions:
+      contents: write
     outputs:
       version-name: ${{ steps.version.outputs.name }}
     steps:
