@@ -121,7 +121,7 @@ androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
             if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
-                output.outputFileName.set("TimeTracker-${android.defaultConfig.versionName}-${variant.buildType}.apk")
+                output.outputFileName.set("NC-TimeTracker-${android.defaultConfig.versionName}-${variant.buildType}.apk")
             }
         }
     }
