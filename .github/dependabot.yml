@@ -1,0 +1,17 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # these must be updated together or the build breaks
+      kotlin-toolchain:
+        patterns: ["org.jetbrains.kotlin*", "com.google.devtools.ksp*", "com.android.tools.build*", "com.android.application"]
+      androidx:
+        patterns: ["androidx.*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
