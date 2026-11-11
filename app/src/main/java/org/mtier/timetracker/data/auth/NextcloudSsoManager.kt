@@ -10,10 +10,12 @@ import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledExcepti
 import com.nextcloud.android.sso.helper.SingleAccountHelper
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,7 +38,8 @@ interface SsoLoginManager {
 
     fun consumeEvent()
 
-    fun isFilesAppInstalled(): Boolean
+    /** Queries the package manager, so implementations do the work off the main thread. */
+    suspend fun isFilesAppInstalled(): Boolean
 
     fun pickAccount(activity: Activity)
 }
@@ -85,8 +88,10 @@ class NextcloudSsoManager
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun consumeEvent() = _events.resetReplayCache()
 
-        override fun isFilesAppInstalled(): Boolean =
-            isFilesAppInstalled { pkg -> runCatching { context.packageManager.getPackageInfo(pkg, 0) }.isSuccess }
+        override suspend fun isFilesAppInstalled(): Boolean =
+            withContext(Dispatchers.IO) {
+                isFilesAppInstalled { pkg -> runCatching { context.packageManager.getPackageInfo(pkg, 0) }.isSuccess }
+            }
 
         /** No official "clear account" API exists in the library — this
          *  mirrors commitCurrentAccount's own storage mechanism (writing to

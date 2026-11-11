@@ -7,9 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.LoginFlowResult
 import org.mtier.timetracker.data.auth.LoginFlowSession
@@ -56,7 +54,7 @@ class LoginViewModel
 
         init {
             viewModelScope.launch {
-                filesAppAvailable = withContext(Dispatchers.IO) { ssoManager.isFilesAppInstalled() }
+                filesAppAvailable = ssoManager.isFilesAppInstalled()
             }
             viewModelScope.launch {
                 ssoManager.events.collect { event ->

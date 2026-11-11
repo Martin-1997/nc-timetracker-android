@@ -27,7 +27,7 @@ class FakeSsoLoginManager : SsoLoginManager {
         _events.resetReplayCache()
     }
 
-    override fun isFilesAppInstalled(): Boolean = filesAppInstalled
+    override suspend fun isFilesAppInstalled(): Boolean = filesAppInstalled
 
     override fun pickAccount(activity: Activity) = Unit
 }

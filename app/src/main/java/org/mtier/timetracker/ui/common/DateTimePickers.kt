@@ -16,12 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-private val DATE_LABEL_FORMATTER =
-    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault())
+private val DATE_LABEL_FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
 private val DATE_TIME_LABEL_FORMATTER =
     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).withZone(ZoneId.systemDefault())
 
@@ -29,41 +27,35 @@ private fun combineDateAndTime(
     dateUtcMillis: Long,
     hour: Int,
     minute: Int,
-): Instant {
-    val date = Instant.ofEpochMilli(dateUtcMillis).atZone(ZoneOffset.UTC).toLocalDate()
-    return date.atTime(hour, minute).atZone(ZoneId.systemDefault()).toInstant()
-}
+): Instant = pickerMillisToDate(dateUtcMillis).atTime(hour, minute).atZone(ZoneId.systemDefault()).toInstant()
 
-/** Date-only picker button, used for the Timer/Dashboard/Reports date range. */
+/**
+ * Date-only picker button for one end of a date range (Timer, Dashboard,
+ * Reports, Timelines). [value] is a range bound; see [DateBound] for what
+ * the start and end bounds of a picked day are.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerButton(
     value: Instant,
     onValueChanged: (Instant) -> Unit,
+    bound: DateBound = DateBound.START,
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val date = boundToDate(value, bound)
 
     OutlinedButton(onClick = { showDialog = true }) {
-        Text(DATE_LABEL_FORMATTER.format(value))
+        Text(DATE_LABEL_FORMATTER.format(date))
     }
 
     if (showDialog) {
-        val state =
-            rememberDatePickerState(
-                initialSelectedDateMillis =
-                    value
-                        .atZone(ZoneOffset.UTC)
-                        .toLocalDate()
-                        .atStartOfDay(ZoneOffset.UTC)
-                        .toInstant()
-                        .toEpochMilli(),
-            )
+        val state = rememberDatePickerState(initialSelectedDateMillis = dateToPickerMillis(date))
         DatePickerDialog(
             onDismissRequest = { showDialog = false },
             confirmButton = {
                 Button(onClick = {
                     state.selectedDateMillis?.let { millis ->
-                        onValueChanged(Instant.ofEpochMilli(millis))
+                        onValueChanged(dateToBound(pickerMillisToDate(millis), bound))
                     }
                     showDialog = false
                 }) { Text("OK") }
@@ -92,13 +84,7 @@ fun DateTimePickerButton(
     if (showDatePicker) {
         val dateState =
             rememberDatePickerState(
-                initialSelectedDateMillis =
-                    value
-                        .atZone(ZoneOffset.UTC)
-                        .toLocalDate()
-                        .atStartOfDay(ZoneOffset.UTC)
-                        .toInstant()
-                        .toEpochMilli(),
+                initialSelectedDateMillis = dateToPickerMillis(value.atZone(ZoneId.systemDefault()).toLocalDate()),
             )
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
