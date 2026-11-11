@@ -2,12 +2,9 @@
 
 package org.mtier.timetracker.ui.login
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -83,11 +80,6 @@ class LoginViewModelTest {
             ssoLoginManager.filesAppInstalled = true
             val viewModel = viewModel()
 
-            advanceUntilIdle()
-            // The check hops through the real Dispatchers.IO (not the
-            // virtual test dispatcher), so give it a moment to actually
-            // complete before draining the continuation it posts back.
-            withContext(Dispatchers.Default) { delay(50) }
             advanceUntilIdle()
 
             assertEquals(true, viewModel.filesAppAvailable)
