@@ -52,7 +52,7 @@ fun DateRangeRow(
         }
         DatePickerButton(value = from, onValueChanged = onFromChanged)
         Text("–", modifier = Modifier.padding(horizontal = 4.dp))
-        DatePickerButton(value = to, onValueChanged = onToChanged)
+        DatePickerButton(value = to, onValueChanged = onToChanged, bound = DateBound.END)
         Button(onClick = onRefresh, modifier = Modifier.padding(start = 4.dp)) {
             Text(stringResource(R.string.common_retry))
         }
