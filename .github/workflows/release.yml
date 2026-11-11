@@ -21,7 +21,7 @@ jobs:
     outputs:
       version-name: ${{ steps.version.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -96,7 +96,7 @@ jobs:
     # whole release, so GitHub Releases + F-Droid still ship on their own.
     if: ${{ vars.PLAY_PUBLISHING_ENABLED == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
