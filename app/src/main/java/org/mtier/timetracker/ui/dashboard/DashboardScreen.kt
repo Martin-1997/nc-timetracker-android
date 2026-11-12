@@ -25,8 +25,16 @@ import org.mtier.timetracker.ui.theme.parseHexColor
 
 private val SLICE_COLORS =
     listOf(
-        "#0082c9", "#e9322d", "#f1c40f", "#27ae60", "#8e44ad",
-        "#e67e22", "#16a085", "#2c3e50", "#c0392b", "#2980b9",
+        "#0082c9",
+        "#e9322d",
+        "#f1c40f",
+        "#27ae60",
+        "#8e44ad",
+        "#e67e22",
+        "#16a085",
+        "#2c3e50",
+        "#c0392b",
+        "#2980b9",
     ).map { parseHexColor(it) }
 
 private const val DONUT_STROKE_FRACTION = 0.3f

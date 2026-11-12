@@ -27,7 +27,12 @@ class ThemeRepository
         /** Best-effort: on any failure (offline, older server, not logged
          *  in yet) the app just keeps the static Nextcloud-blue fallback. */
         suspend fun refresh() {
-            val theming = runCatching { api.getCapabilities().ocs.data.capabilities.theming }.getOrNull()
+            val theming =
+                runCatching {
+                    api
+                        .getCapabilities()
+                        .ocs.data.capabilities.theming
+                }.getOrNull()
             val primaryHex = theming?.color ?: return
             _colors.value = ServerThemeColors(primaryHex, theming.colorText ?: "#FFFFFF")
         }

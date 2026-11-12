@@ -20,7 +20,11 @@ class UsersRepository
         /** Locked-project fields (allowedTags/allowedUsers) are only ever
          *  honored server-side for members of the "admin" group — see
          *  AjaxController::editProject's isThisAdminUser() checks. */
-        suspend fun isCurrentUserAdmin(): Boolean = api.getSelfUser().ocs.data.groups.contains(ADMIN_GROUP)
+        suspend fun isCurrentUserAdmin(): Boolean =
+            api
+                .getSelfUser()
+                .ocs.data.groups
+                .contains(ADMIN_GROUP)
 
         suspend fun getUsers(): List<NextcloudUser> =
             api
