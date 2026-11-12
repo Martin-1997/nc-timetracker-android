@@ -73,6 +73,31 @@ source, not assumed from memory.
   repository stack through starting and stopping a timer, with only the
   network interface faked; needs a connected device/emulator.
 
+## Releasing
+
+```
+1. ./scripts/bump-version.sh 1.2.2   → changes the version in build.gradle.kts,
+                                       creates the changelog files,
+                                       commits and tags v1.2.2 (locally only)
+2. write the changelog, amend the commit if needed, review
+3. git push && git push origin v1.2.2  → this triggers release.yml
+4. release.yml checks: tag v1.2.2 == versionName 1.2.2 and versionCode increased
+                                     → then builds, creates the GitHub release, uploads to Play
+```
+
+`versionCode` is derived from the version as `MAJOR * 10000 + MINOR * 100 +
+PATCH` (1.2.2 → 10202), so minor and patch must stay below 100. Both values
+stay literals in `app/build.gradle.kts`, because F-Droid reads them from
+there. The changelogs for a release are
+`fastlane/metadata/android/{en-US,de-DE}/changelogs/<versionCode>.txt`.
+
+If you amend the release commit in step 2, move the tag along with it:
+
+```
+git commit --amend
+git tag -f -a v1.2.2 -m "Release 1.2.2"
+```
+
 ## Known V1 MVP limitations (by design, not oversights)
 
 - The Timer's inline tag picker shows all tags regardless of whether the
