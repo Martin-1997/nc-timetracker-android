@@ -27,6 +27,12 @@ class FakeOcsApi : OcsApi {
         fun withTheming(
             color: String?,
             colorText: String?,
-        ) = OcsCapabilitiesDto(OcsCapabilitiesSectionsDto(theming = org.mtier.timetracker.data.api.dto.OcsThemingDto(color, colorText)))
+        ) = OcsCapabilitiesDto(
+            OcsCapabilitiesSectionsDto(
+                theming =
+                    org.mtier.timetracker.data.api.dto
+                        .OcsThemingDto(color, colorText),
+            ),
+        )
     }
 }

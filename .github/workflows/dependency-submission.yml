@@ -13,3 +13,5 @@ jobs:
       - uses: actions/setup-java@v6
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/dependency-submission@v6
+        env:
+          DEPENDENCY_GRAPH_INCLUDE_CONFIGURATIONS: 'releaseRuntimeClasspath'
