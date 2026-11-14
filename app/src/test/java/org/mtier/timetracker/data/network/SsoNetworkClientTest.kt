@@ -62,7 +62,12 @@ class SsoNetworkClientTest {
 
     @Test
     fun `buildNextcloudRequest has no query parameters when there aren't any`() {
-        val request = OkHttpRequest.Builder().url("https://dynamic.invalid/apps/timetracker/ajax/tags").get().build()
+        val request =
+            OkHttpRequest
+                .Builder()
+                .url("https://dynamic.invalid/apps/timetracker/ajax/tags")
+                .get()
+                .build()
 
         val ncRequest = buildNextcloudRequest(request)
 
@@ -72,7 +77,12 @@ class SsoNetworkClientTest {
 
     @Test
     fun `buildSsoResponse maps a successful AIDL result to an HTTP 200`() {
-        val request = OkHttpRequest.Builder().url("https://dynamic.invalid/apps/timetracker/ajax/tags").get().build()
+        val request =
+            OkHttpRequest
+                .Builder()
+                .url("https://dynamic.invalid/apps/timetracker/ajax/tags")
+                .get()
+                .build()
         val body = """{"tags":[]}""".toByteArray()
         val result =
             com.nextcloud.android.sso.api.Response(
@@ -89,7 +99,12 @@ class SsoNetworkClientTest {
 
     @Test
     fun `buildSsoErrorResponse carries the given status code and message into the Response`() {
-        val request = OkHttpRequest.Builder().url("https://dynamic.invalid/apps/timetracker/ajax/tags").get().build()
+        val request =
+            OkHttpRequest
+                .Builder()
+                .url("https://dynamic.invalid/apps/timetracker/ajax/tags")
+                .get()
+                .build()
 
         val response = buildSsoErrorResponse(request, 429, "Reached maximum delay")
 
@@ -100,7 +115,12 @@ class SsoNetworkClientTest {
 
     @Test
     fun `buildSsoErrorResponse falls back to a generic message when none is given`() {
-        val request = OkHttpRequest.Builder().url("https://dynamic.invalid/apps/timetracker/ajax/tags").get().build()
+        val request =
+            OkHttpRequest
+                .Builder()
+                .url("https://dynamic.invalid/apps/timetracker/ajax/tags")
+                .get()
+                .build()
 
         val response = buildSsoErrorResponse(request, 502, null)
 

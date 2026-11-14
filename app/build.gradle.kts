@@ -1,8 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
@@ -10,18 +10,6 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.play.publisher)
-}
-
-// com.github.nextcloud:Android-SingleSignOn transitively pulls in a
-// kotlin-stdlib newer than this project's pinned Kotlin compiler version,
-// which fails with a metadata-version mismatch during kspDebugKotlin.
-// stdlib is broadly backward-compatible, so pin the resolved version back
-// down to what the rest of the project (and the Kotlin plugin itself)
-// already uses instead of bumping Kotlin project-wide for one dependency.
-configurations.all {
-    resolutionStrategy {
-        force("org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.get()}")
-    }
 }
 
 // Release signing is optional at configuration time: keystore.properties is
@@ -48,7 +36,7 @@ fun requiredSigningProperty(key: String): String =
 
 android {
     namespace = "org.mtier.timetracker"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "org.mtier.timetracker"
@@ -96,10 +84,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -109,6 +93,12 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 

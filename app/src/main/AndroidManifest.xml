@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Nextcloud SSO's UiExceptionManager posts error notifications; never
+         requested at runtime, so on Android 13+ it only applies if the user
+         grants it in Settings. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".TimeTrackerApplication"
