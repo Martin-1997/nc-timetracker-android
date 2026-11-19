@@ -129,4 +129,13 @@
     <string name="timelines_admin_approved">Approved</string>
     <string name="timelines_admin_rejected">Rejected</string>
     <string name="timelines_admin_save">Save status</string>
+    <string name="timer_fold_all">Fold all</string>
+    <string name="timer_unfold_all">Unfold all</string>
+    <string name="timer_fold">Fold</string>
+    <string name="timer_unfold">Unfold</string>
+    <string name="timer_resume">Resume</string>
+    <plurals name="timer_entry_count">
+        <item quantity="one">%d entry</item>
+        <item quantity="other">%d entries</item>
+    </plurals>
 </resources>

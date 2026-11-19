@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -23,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,18 +71,36 @@ fun TimerScreen(
         if (state.isLoading && state.days.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier.padding(top = 32.dp))
         } else {
+            if (state.days.any { day -> day.groups.any { it.entries.size > 1 } }) {
+                Row(modifier = Modifier.padding(top = 8.dp)) {
+                    TextButton(onClick = viewModel::foldAll) { Text(stringResource(R.string.timer_fold_all)) }
+                    TextButton(onClick = viewModel::unfoldAll) { Text(stringResource(R.string.timer_unfold_all)) }
+                }
+            }
             LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
                 state.days.forEach { dayGroup ->
-                    item {
-                        Text(
-                            text = dayGroup.label,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        )
+                    item(key = "day:${dayGroup.label}") {
+                        DayHeader(dayGroup, state.liveElapsedSeconds)
                     }
-                    items(dayGroup.items, key = { it.id }) { workItem ->
-                        WorkIntervalRow(workItem, viewModel)
-                        HorizontalDivider()
+                    dayGroup.groups.forEach { group ->
+                        if (group.entries.size == 1) {
+                            item(key = group.newest.id) {
+                                WorkIntervalRow(group.newest, viewModel)
+                                HorizontalDivider()
+                            }
+                        } else {
+                            val folded = group.key in viewModel.foldedGroups
+                            item(key = "group:${group.key}") {
+                                NameGroupRow(group, folded, state.liveElapsedSeconds, viewModel)
+                                HorizontalDivider()
+                            }
+                            if (!folded) {
+                                items(group.entries, key = { it.id }) { workItem ->
+                                    WorkIntervalRow(workItem, viewModel, modifier = Modifier.padding(start = 24.dp))
+                                    HorizontalDivider()
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -212,12 +234,57 @@ private fun TopBar(viewModel: TimerViewModel) {
     }
 }
 
+/** Date and the day's total, including a running entry's live time (#307). */
+@Composable
+private fun DayHeader(
+    day: DayGroup,
+    liveElapsedSeconds: Long,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Text(text = day.label, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+        val total = day.stoppedSeconds + if (day.isRunning) liveElapsedSeconds else 0
+        Text(text = formatDurationHms(total), style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+/** Group row for same-named entries of a day: fold toggle, name, count,
+ *  live subtotal and resume (#299, #309). */
+@Composable
+private fun NameGroupRow(
+    group: NameGroup,
+    folded: Boolean,
+    liveElapsedSeconds: Long,
+    viewModel: TimerViewModel,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        IconButton(onClick = { viewModel.toggleFold(group) }) {
+            Icon(
+                if (folded) Icons.Filled.ChevronRight else Icons.Filled.ExpandMore,
+                contentDescription = stringResource(if (folded) R.string.timer_unfold else R.string.timer_fold),
+            )
+        }
+        Column(modifier = Modifier.weight(1f).clickable { viewModel.toggleFold(group) }) {
+            Text(text = group.name, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = pluralStringResource(R.plurals.timer_entry_count, group.entries.size, group.entries.size),
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        val subtotal = group.stoppedSeconds + if (group.isRunning) liveElapsedSeconds else 0
+        Text(text = formatDurationHms(subtotal))
+        IconButton(onClick = { viewModel.resumeGroup(group) }) {
+            Icon(Icons.Filled.PlayArrow, contentDescription = stringResource(R.string.timer_resume))
+        }
+    }
+}
+
 @Composable
 private fun WorkIntervalRow(
     item: WorkIntervalItemDto,
     viewModel: TimerViewModel,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Column(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { viewModel.resume(item) }) {
                 Icon(
@@ -249,7 +316,8 @@ private fun WorkIntervalRow(
 
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
             OutlinedButton(onClick = { viewModel.openEditTime(item) }) {
-                Text(formatDurationHms((item.duration ?: 0).toLong()))
+                val seconds = if (item.isRunning) viewModel.uiState.liveElapsedSeconds else (item.duration ?: 0).toLong()
+                Text("${formatStartEnd(item)}  ${formatDurationHms(seconds)}")
             }
             val status = viewModel.costStatus[item.id]
             OutlinedTextField(

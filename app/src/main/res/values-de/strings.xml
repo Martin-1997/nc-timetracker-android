@@ -118,4 +118,13 @@
     <string name="timelines_admin_approved">Genehmigt</string>
     <string name="timelines_admin_rejected">Abgelehnt</string>
     <string name="timelines_admin_save">Status speichern</string>
+    <string name="timer_fold_all">Alle einklappen</string>
+    <string name="timer_unfold_all">Alle ausklappen</string>
+    <string name="timer_fold">Einklappen</string>
+    <string name="timer_unfold">Ausklappen</string>
+    <string name="timer_resume">Fortsetzen</string>
+    <plurals name="timer_entry_count">
+        <item quantity="one">%d Eintrag</item>
+        <item quantity="other">%d Einträge</item>
+    </plurals>
 </resources>
