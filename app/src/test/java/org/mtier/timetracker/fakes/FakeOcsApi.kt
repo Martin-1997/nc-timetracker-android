@@ -34,5 +34,16 @@ class FakeOcsApi : OcsApi {
                         .OcsThemingDto(color, colorText),
             ),
         )
+
+        fun withTimeTracker(
+            version: String,
+            features: List<String>,
+        ) = OcsCapabilitiesDto(
+            OcsCapabilitiesSectionsDto(
+                timetracker =
+                    org.mtier.timetracker.data.api.dto
+                        .OcsTimeTrackerCapabilityDto(version, listOf("v1"), features),
+            ),
+        )
     }
 }

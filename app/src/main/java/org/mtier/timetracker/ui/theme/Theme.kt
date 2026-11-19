@@ -32,7 +32,7 @@ private val DarkColors =
  * Nextcloud server's theme, which defeats the "match the Files app" goal.
  *
  * [serverColors], when available (fetched from the capabilities OCS
- * endpoint — see ThemeRepository), overrides the static Nextcloud-blue
+ * endpoint — see ServerCapabilitiesRepository), overrides the static Nextcloud-blue
  * fallback with the actual connected server's configured theming color,
  * for both light and dark mode (the capabilities API only exposes one
  * "brand" color + its contrasting text color, not separate light/dark

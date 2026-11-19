@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // Nextcloud's default theming primary color (#0082c9), matching the Files
 // app — used as the fallback until the server's own theming color (fetched
-// from the capabilities API, see ThemeRepository) is available.
+// from the capabilities API, see ServerCapabilitiesRepository) is available.
 val NcBlue = Color(0xFF0082C9)
 val NcBlueDark = Color(0xFF006AA3)
 val NcBlueLight = Color(0xFFD8ECF9)

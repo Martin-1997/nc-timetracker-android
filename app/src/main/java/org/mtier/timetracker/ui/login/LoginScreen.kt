@@ -58,7 +58,7 @@ fun LoginScreen(
                 // (a pre-auth branding screen, not themed content — no
                 // per-server theming color is available yet anyway, since
                 // that's only fetched after a session exists, see
-                // ThemeRepository).
+                // ServerCapabilitiesRepository).
                 .background(NcBlue)
                 .padding(32.dp),
         verticalArrangement = Arrangement.Center,

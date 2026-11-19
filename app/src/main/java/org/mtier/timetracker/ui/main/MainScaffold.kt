@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.mtier.timetracker.R
+import org.mtier.timetracker.data.repository.TimeTrackerCapabilities
 import org.mtier.timetracker.ui.navigation.Destination
 import org.mtier.timetracker.ui.navigation.drawerDestinations
 
@@ -77,6 +78,7 @@ fun MainScaffold(
     currentDestination: Destination,
     title: String,
     isAdmin: Boolean,
+    serverCapabilities: TimeTrackerCapabilities,
     onNavigate: (Destination) -> Unit,
     onSignOut: () -> Unit,
     content: @Composable (Modifier) -> Unit,
@@ -87,7 +89,13 @@ fun MainScaffold(
 
     // Timelines Admin is admin-only, same as the web frontend's
     // App.vue: `views.filter((item) => item.name !== 'timelines-admin' || this.isAdmin)`.
-    val visibleDestinations = drawerDestinations.filter { it != Destination.TimelinesAdmin || isAdmin }
+    // Entries for features the server doesn't offer are hidden as well
+    // (mtierltd/timetracker#312).
+    val visibleDestinations =
+        drawerDestinations.filter {
+            (it != Destination.TimelinesAdmin || isAdmin) &&
+                it.requiredFeature?.let(serverCapabilities::supports) != false
+        }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

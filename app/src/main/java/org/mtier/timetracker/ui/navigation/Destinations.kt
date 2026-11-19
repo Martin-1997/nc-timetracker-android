@@ -1,7 +1,12 @@
 package org.mtier.timetracker.ui.navigation
 
+import org.mtier.timetracker.data.repository.ServerFeature
+
+/** [requiredFeature]: the drawer hides this entry when the server doesn't
+ *  offer that feature (see ServerFeature). */
 sealed class Destination(
     val route: String,
+    val requiredFeature: ServerFeature? = null,
 ) {
     data object Login : Destination("login")
 
@@ -9,13 +14,13 @@ sealed class Destination(
 
     data object Dashboard : Destination("dashboard")
 
-    data object Goals : Destination("goals")
+    data object Goals : Destination("goals", ServerFeature.GOALS)
 
     data object Reports : Destination("reports")
 
-    data object Timelines : Destination("timelines")
+    data object Timelines : Destination("timelines", ServerFeature.TIMELINES)
 
-    data object TimelinesAdmin : Destination("timelines-admin")
+    data object TimelinesAdmin : Destination("timelines-admin", ServerFeature.TIMELINES)
 
     data object Projects : Destination("projects")
 

@@ -5,13 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.NextcloudSsoManager
-import org.mtier.timetracker.data.repository.ThemeRepository
+import org.mtier.timetracker.data.repository.ServerCapabilitiesRepository
 import org.mtier.timetracker.ui.navigation.TimeTrackerNavHost
 import org.mtier.timetracker.ui.theme.TimeTrackerTheme
 import javax.inject.Inject
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
     lateinit var authRepository: AuthRepository
 
     @Inject
-    lateinit var themeRepository: ThemeRepository
+    lateinit var capabilitiesRepository: ServerCapabilitiesRepository
 
     @Inject
     lateinit var ssoManager: NextcloudSsoManager
@@ -52,18 +53,25 @@ class MainActivity : ComponentActivity() {
         ssoManager.handlePermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+    /**
+     * Re-reads the server capabilities (theme colors, timetracker version and
+     * features) on cold start and every return to the foreground, so a server
+     * update is noticed without signing in again. A fresh login triggers its
+     * own refresh (LoginViewModel).
+     */
+    override fun onStart() {
+        super.onStart()
+        if (authRepository.currentCredentials() != null) {
+            lifecycleScope.launch { capabilitiesRepository.refresh() }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val isLoggedIn = authRepository.currentCredentials() != null
         setContent {
-            // Also re-triggered right after a fresh login (LoginViewModel),
-            // so the server's theme applies immediately either way — this
-            // covers the cold-start-while-already-authenticated case.
-            LaunchedEffect(isLoggedIn) {
-                if (isLoggedIn) themeRepository.refresh()
-            }
-            val serverColors by themeRepository.colors.collectAsState()
+            val serverColors by capabilitiesRepository.colors.collectAsState()
 
             TimeTrackerTheme(serverColors = serverColors) {
                 TimeTrackerNavHost(isLoggedIn = isLoggedIn)

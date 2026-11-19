@@ -1,6 +1,8 @@
 package org.mtier.timetracker.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -24,6 +26,7 @@ import org.mtier.timetracker.ui.timer.TimerScreen
 fun TimeTrackerNavHost(isLoggedIn: Boolean) {
     val navController = rememberNavController()
     val sessionViewModel: SessionViewModel = hiltViewModel()
+    val serverCapabilities by sessionViewModel.serverCapabilities.collectAsState()
 
     fun goToDestination(destination: Destination) {
         navController.navigate(destination.route) {
@@ -62,6 +65,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Timer,
                 title = stringResource(R.string.nav_timer),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> TimerScreen(modifier = modifier) }
@@ -72,6 +76,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Dashboard,
                 title = stringResource(R.string.nav_dashboard),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> DashboardScreen(modifier = modifier) }
@@ -82,6 +87,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Goals,
                 title = stringResource(R.string.nav_goals),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> GoalsScreen(modifier = modifier) }
@@ -92,6 +98,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Reports,
                 title = stringResource(R.string.nav_reports),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> ReportsScreen(modifier = modifier) }
@@ -102,6 +109,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Timelines,
                 title = stringResource(R.string.nav_timelines),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> TimelinesScreen(modifier = modifier) }
@@ -112,6 +120,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.TimelinesAdmin,
                 title = stringResource(R.string.nav_timelines_admin),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> TimelinesAdminScreen(modifier = modifier) }
@@ -122,6 +131,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Projects,
                 title = stringResource(R.string.nav_projects),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> ProjectsScreen(modifier = modifier) }
@@ -132,6 +142,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Clients,
                 title = stringResource(R.string.nav_clients),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> ClientsScreen(modifier = modifier) }
@@ -142,6 +153,7 @@ fun TimeTrackerNavHost(isLoggedIn: Boolean) {
                 currentDestination = Destination.Tags,
                 title = stringResource(R.string.nav_tags),
                 isAdmin = sessionViewModel.isAdmin,
+                serverCapabilities = serverCapabilities,
                 onNavigate = ::goToDestination,
                 onSignOut = ::onSignedOut,
             ) { modifier -> TagsScreen(modifier = modifier) }
