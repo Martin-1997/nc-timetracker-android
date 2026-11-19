@@ -16,7 +16,7 @@ import org.mtier.timetracker.data.api.dto.OcsThemingDto
 import org.mtier.timetracker.data.auth.AuthRepository
 import org.mtier.timetracker.data.auth.Credentials
 import org.mtier.timetracker.data.auth.SsoEvent
-import org.mtier.timetracker.data.repository.ThemeRepository
+import org.mtier.timetracker.data.repository.ServerCapabilitiesRepository
 import org.mtier.timetracker.fakes.FakeCacheStore
 import org.mtier.timetracker.fakes.FakeCredentialStore
 import org.mtier.timetracker.fakes.FakeOcsApi
@@ -42,14 +42,14 @@ class LoginViewModelTest {
 
     private val credentialStore = FakeCredentialStore()
     private val themeApi = FakeOcsApi()
-    private val themeRepository = ThemeRepository(themeApi)
+    private val capabilitiesRepository = ServerCapabilitiesRepository(themeApi)
     private val ssoAccountManager = FakeSsoAccountManager()
     private val ssoLoginManager = FakeSsoLoginManager()
 
     private fun viewModel(): LoginViewModel =
         LoginViewModel(
             AuthRepository(credentialStore, ssoAccountManager, FakeCacheStore()),
-            themeRepository,
+            capabilitiesRepository,
             ssoLoginManager,
         )
 
@@ -97,7 +97,7 @@ class LoginViewModelTest {
             advanceUntilIdle()
 
             assertEquals(credentials, credentialStore.load())
-            assertEquals("#112233", themeRepository.colors.value?.primaryHex)
+            assertEquals("#112233", capabilitiesRepository.colors.value?.primaryHex)
             assertEquals(LoginUiState.Success, viewModel.uiState)
             assertEquals(1, ssoLoginManager.consumeEventCallCount)
         }

@@ -10,6 +10,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mtier.timetracker.MainDispatcherRule
 import org.mtier.timetracker.data.auth.AuthRepository
+import org.mtier.timetracker.data.repository.ServerCapabilitiesRepository
 import org.mtier.timetracker.data.repository.UsersRepository
 import org.mtier.timetracker.fakes.FakeCacheStore
 import org.mtier.timetracker.fakes.FakeCredentialStore
@@ -28,6 +29,7 @@ class SessionViewModelTest {
         SessionViewModel(
             AuthRepository(credentialStore, ssoAccountManager, cacheStore),
             UsersRepository(FakeOcsApi()),
+            ServerCapabilitiesRepository(FakeOcsApi()),
         )
 
     @Test

@@ -33,7 +33,7 @@ data class OcsUsersDetailsDto(
     val users: Map<String, OcsUserDetailDto> = emptyMap(),
 )
 
-/** `ocs/v1.php/cloud/capabilities`'s `data.capabilities.theming` section. */
+/** `ocs/v1.php/cloud/capabilities` — only the sections the app reads. */
 @Serializable
 data class OcsCapabilitiesDto(
     val capabilities: OcsCapabilitiesSectionsDto = OcsCapabilitiesSectionsDto(),
@@ -42,6 +42,18 @@ data class OcsCapabilitiesDto(
 @Serializable
 data class OcsCapabilitiesSectionsDto(
     val theming: OcsThemingDto? = null,
+    val timetracker: OcsTimeTrackerCapabilityDto? = null,
+)
+
+/**
+ * The timetracker app's own capability block (mtierltd/timetracker#312).
+ * Missing entirely on servers that predate it.
+ */
+@Serializable
+data class OcsTimeTrackerCapabilityDto(
+    val version: String? = null,
+    val api: List<String> = emptyList(),
+    val features: List<String> = emptyList(),
 )
 
 @Serializable

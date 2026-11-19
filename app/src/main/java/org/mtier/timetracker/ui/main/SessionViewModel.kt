@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.mtier.timetracker.data.auth.AuthRepository
+import org.mtier.timetracker.data.repository.ServerCapabilitiesRepository
+import org.mtier.timetracker.data.repository.TimeTrackerCapabilities
 import org.mtier.timetracker.data.repository.UsersRepository
 import javax.inject.Inject
 
@@ -18,7 +21,12 @@ class SessionViewModel
     constructor(
         private val authRepository: AuthRepository,
         private val usersRepository: UsersRepository,
+        private val capabilitiesRepository: ServerCapabilitiesRepository,
     ) : ViewModel() {
+        /** What the connected server supports — gates drawer entries and
+         *  newer features (mtierltd/timetracker#312). */
+        val serverCapabilities: StateFlow<TimeTrackerCapabilities> = capabilitiesRepository.timetracker
+
         /** Gates the Timelines Admin drawer entry, same as the web
          *  frontend's App.vue (`views.filter(... || this.isAdmin)`). */
         var isAdmin by mutableStateOf(false)
@@ -49,6 +57,7 @@ class SessionViewModel
         fun signOut(onComplete: () -> Unit) {
             viewModelScope.launch {
                 try {
+                    capabilitiesRepository.clear()
                     authRepository.signOut()
                 } catch (e: CancellationException) {
                     throw e
