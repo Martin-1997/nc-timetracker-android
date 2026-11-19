@@ -22,11 +22,6 @@ import javax.inject.Inject
 
 enum class CostStatus { SUCCESS, ERROR }
 
-data class DayGroup(
-    val label: String,
-    val items: List<WorkIntervalItemDto>,
-)
-
 data class TimerUiState(
     val days: List<DayGroup> = emptyList(),
     val isRunning: Boolean = false,
@@ -106,6 +101,11 @@ class TimerViewModel
         var pendingDelete by mutableStateOf<WorkIntervalItemDto?>(null)
             private set
 
+        /** Keys of folded [NameGroup]s; unfolded by default, as on the web
+         *  (mtierltd/timetracker#309). Kept across refreshes and rotation. */
+        var foldedGroups by mutableStateOf<Set<String>>(emptySet())
+            private set
+
         private var runningStartEpochSecond: Long? = null
         private var tickerJob: Job? = null
 
@@ -168,16 +168,7 @@ class TimerViewModel
             viewModelScope.launch {
                 runCatching { timerRepository.getWorkIntervals(rangeFrom, rangeTo) }
                     .onSuccess { response ->
-                        val days =
-                            response.days.map { (label, nameGroups) ->
-                                DayGroup(
-                                    label = label,
-                                    items =
-                                        nameGroups.values
-                                            .flatMap { it.children }
-                                            .sortedByDescending { it.start },
-                                )
-                            }
+                        val days = buildDayGroups(response.days)
                         val running = response.running
                         uiState =
                             uiState.copy(
@@ -257,6 +248,29 @@ class TimerViewModel
                     .onFailure { uiState = uiState.copy(errorMessage = it.message) }
             }
         }
+
+        /** Resumes the group's name with the project and tags of its newest entry. */
+        fun resumeGroup(group: NameGroup) = resume(group.newest)
+
+        fun toggleFold(group: NameGroup) {
+            foldedGroups = if (group.key in foldedGroups) foldedGroups - group.key else foldedGroups + group.key
+        }
+
+        /** Applies to the groups currently shown (those with more than one entry). */
+        fun foldAll() {
+            foldedGroups = foldedGroups + foldableGroupKeys()
+        }
+
+        fun unfoldAll() {
+            foldedGroups = foldedGroups - foldableGroupKeys()
+        }
+
+        private fun foldableGroupKeys(): Set<String> =
+            uiState.days
+                .flatMap { it.groups }
+                .filter { it.entries.size > 1 }
+                .map { it.key }
+                .toSet()
 
         fun openEditNameDetails(item: WorkIntervalItemDto) {
             editingNameDetails = EditNameDetailsState(item, item.name, item.details ?: "")
