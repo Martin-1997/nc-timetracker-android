@@ -84,7 +84,12 @@ class TimerRepository
             api
                 .updateWorkIntervalTime(
                     id,
-                    UpdateTimeRequest(start.toApiDateString(), end.toApiDateString(), currentTzOffsetMinutes()),
+                    UpdateTimeRequest(
+                        start = start.toApiDateString(),
+                        end = end.toApiDateString(),
+                        tzoffset = tzOffsetMinutesAt(start),
+                        tzoffsetEnd = tzOffsetMinutesAt(end),
+                    ),
                 ).throwOnError()
         }
 
@@ -100,7 +105,8 @@ class TimerRepository
                     AddWorkIntervalRequest(
                         start = start.toApiDateString(),
                         end = end.toApiDateString(),
-                        tzoffset = currentTzOffsetMinutes(),
+                        tzoffset = tzOffsetMinutesAt(start),
+                        tzoffsetEnd = tzOffsetMinutesAt(end),
                         details = details,
                     ),
                 ).throwOnError()

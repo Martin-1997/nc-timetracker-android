@@ -16,6 +16,16 @@ private const val MILLIS_PER_MINUTE = 60_000
 
 fun Instant.toApiDateString(): String = API_DATE_FORMATTER.withZone(ZoneId.systemDefault()).format(this)
 
-/** Java's getRawOffset is milliseconds east of UTC; the PHP side expects
+/** Java's getOffset is milliseconds east of UTC; the PHP side expects
  *  JS's getTimezoneOffset() convention (minutes *west* of UTC), so negate. */
-fun currentTzOffsetMinutes(): Int = -(TimeZone.getDefault().getOffset(System.currentTimeMillis()) / MILLIS_PER_MINUTE)
+fun currentTzOffsetMinutes(): Int = tzOffsetMinutesAt(Instant.ofEpochMilli(System.currentTimeMillis()))
+
+/**
+ * The offset in effect at [instant], not today's: a time on the other side
+ * of a daylight saving change would otherwise be stored an hour off
+ * (mtierltd/timetracker#151). Sent per time as `tzoffset` / `tzoffsetEnd`.
+ */
+fun tzOffsetMinutesAt(
+    instant: Instant,
+    timeZone: TimeZone = TimeZone.getDefault(),
+): Int = -(timeZone.getOffset(instant.toEpochMilli()) / MILLIS_PER_MINUTE)
