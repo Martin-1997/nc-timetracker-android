@@ -6,6 +6,18 @@ Services, Firebase/FCM, or Google Sign-In dependency anywhere in the stack.
 
 See [PLAN.md](PLAN.md) for the full V1 architecture/scope plan.
 
+## Feature parity and server compatibility
+
+Which features exist on the web, Android and other clients is tracked in
+the server repo's [FEATURES.md](https://github.com/mtierltd/timetracker/blob/master/FEATURES.md)
+(mtierltd/timetracker#313). When a PR here adds or changes a user-facing
+feature, update the Android column there.
+
+The app reads the server's `timetracker` capability (version and feature
+identifiers, mtierltd/timetracker#312) and hides features the connected
+server doesn't offer. A new feature that needs server support gets an entry
+in `ServerFeature` with the identifier from FEATURES.md.
+
 # Planned features
 
 - Auth using either the Nextcloud Files App or the Browser Login Flow
