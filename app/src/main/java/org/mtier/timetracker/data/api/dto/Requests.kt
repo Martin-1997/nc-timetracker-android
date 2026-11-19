@@ -51,6 +51,9 @@ data class UpdateTimeRequest(
     val start: String,
     val end: String,
     val tzoffset: Int,
+    /** Offset on the end date. Servers before mtierltd/timetracker#151
+     *  ignore it and use [tzoffset] for both. */
+    val tzoffsetEnd: Int,
 )
 
 @Serializable
@@ -58,6 +61,9 @@ data class AddWorkIntervalRequest(
     val start: String,
     val end: String,
     val tzoffset: Int,
+    /** Offset on the end date. Servers before mtierltd/timetracker#151
+     *  ignore it and use [tzoffset] for both. */
+    val tzoffsetEnd: Int,
     val details: String = "",
 )
 

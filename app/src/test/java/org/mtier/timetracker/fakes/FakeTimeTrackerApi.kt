@@ -169,15 +169,25 @@ class FakeTimeTrackerApi : TimeTrackerApi {
         body: UpdateTagsRequest,
     ) = notUsedInThisTest()
 
+    val updateTimeCalls = mutableListOf<Pair<Int, UpdateTimeRequest>>()
+
     override suspend fun updateWorkIntervalTime(
         id: Int,
         body: UpdateTimeRequest,
-    ) = notUsedInThisTest()
+    ): Response<JsonObject> {
+        updateTimeCalls.add(id to body)
+        return Response.success(JsonObject(emptyMap()))
+    }
+
+    val addWorkIntervalCalls = mutableListOf<Pair<String, AddWorkIntervalRequest>>()
 
     override suspend fun addWorkInterval(
         name: String,
         body: AddWorkIntervalRequest,
-    ) = notUsedInThisTest()
+    ): Response<JsonObject> {
+        addWorkIntervalCalls.add(name to body)
+        return Response.success(JsonObject(emptyMap()))
+    }
 
     override suspend fun deleteWorkInterval(id: Int) = notUsedInThisTest()
 
